@@ -5,12 +5,13 @@
 
 HOSTNAME=$(/bin/hostname -s)
 case "${HOSTNAME}" in
+  pink|black)
+      exit 0;
+  ;;
   *)
       # these are our wifi sniffing boxes, they get installed via regular fai
       echo "shelling out"
       /bin/bash
-      exit 0;
   ;;
 esac
-exit 0;
 
