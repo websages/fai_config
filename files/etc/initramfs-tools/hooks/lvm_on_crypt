@@ -1,0 +1,28 @@
+#!/bin/sh
+
+PREREQ="" 
+prereqs(){         
+    echo "$PREREQ" 
+}
+
+case $1 in 
+    prereqs)         
+        prereqs         
+        exit 0         
+    ;; 
+esac
+
+# Begin real processing below this line
+[ ! -d ${DESTDIR}/boot ] && mkdir -p ${DESTDIR}/boot
+
+# copy the crypttab into /boot on initrd
+/bin/cp -p /boot/crypttab ${DESTDIR}/boot
+
+# copy the keys referenced in the crypttab into /boot on initrd
+for key in `/bin/cat /boot/crypttab|sed -e 's/#.*//g'|grep .|awk '{print $3}'`;do 
+    if [ -f ${key} ];then
+        cp -p ${key} ${DESTDIR}/boot
+    fi
+done
+
+exit 0 

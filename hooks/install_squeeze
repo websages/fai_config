@@ -1,0 +1,88 @@
+#!/bin/bash
+export PATH="/usr/local/sbin:/usr/local/bin:/usr/lib/fai:/usr/sbin:/usr/bin:/sbin:/bin"
+export KERNEL_VERSION=$(uname -r)
+export ROOT_DEV='/dev/sda'
+export ROOT_MNT='/target'
+export DISTRO='squeeze'
+export SOURCE='http://ftp.gtlib.gatech.edu/debian/'
+
+################################################################################
+# Partition and format the drive
+dd if=/dev/zero of=${ROOT_DEV} bs=512 count=1
+echo -e "o\nn\np\n1\n\n\nw\n"| fdisk ${ROOT_DEV}
+mke2fs -j ${ROOT_DEV}1
+[ ! -d ${ROOT_MNT} ] && mkdir ${ROOT_MNT}
+mount ${ROOT_DEV}1 ${ROOT_MNT}
+################################################################################
+# Transform a commented list of packages into a comma separated single-line
+
+PKGS=$(cat<<EOF|sed -e 's/#.*//'|grep .|tr '\n' ','|sed -e 's/ \+/ /g' -e's/[ ,]\+/,/g' -e's/,$//'
+locales less screen ssh ssl-cert ntp linux-image-486
+#aufs-tools dmsetup dnsutils eject cryptsetup git hashalot
+#ifplugd initramfs-tools ipsec-tools isc-dhcp-server 
+#nagios3 nagios3-common nagios-plugins-basic nagios-plugins-standard
+#ldap-utils 
+#sudo 
+#libwww-mechanize-perl libjson-perl nagios-plugins
+#nagios-snmp-plugins ntpdate openssl postfix racoon rsyslog shorewall
+#usbutils ppp wvdial 
+EOF
+)
+################################################################################
+# install the Operating system
+debootstrap --include="${PKGS}"  --verbose --arch i386 ${DISTRO} ${ROOT_MNT} ${SOURCE}
+################################################################################
+# install the kernel
+install -o root -g root -m 644 /boot/config-${KERNEL_VERSION} ${ROOT_MNT}/boot
+install -o root -g root -m 644 /boot/vmlinuz-${KERNEL_VERSION} ${ROOT_MNT}/boot
+install -o root -g root -m 644 /boot/System.map-${KERNEL_VERSION} ${ROOT_MNT}/boot
+rsync -avzP /lib/modules/${KERNEL_VERSION}/ ${ROOT_MNT}/lib/modules/${KERNEL_VERSION}/
+################################################################################
+# install grub
+if [ ! -d ${ROOT_MNT}/boot/grub ];then
+    mkdir -p ${ROOT_MNT}/boot/grub
+fi
+cat<<EOF >${ROOT_MNT}/boot/grub/grub.cfg
+# these make the system hang
+# 19200 8n1
+# serial --unit=0 --speed=19200 --word=8 --parity=no --stop=1
+set timeout=0
+set default=0
+menuentry "soekris ro-root on cryptoloop" {
+        set root=(hd0,1)
+        linux /boot/vmlinuz-${KERNEL_VERSION} root=${ROOT_DEV}1 ro console=ttyS0,19200n8
+        initrd /boot/initrd.img-${KERNEL_VERSION}
+}
+EOF
+/usr/sbin/grub-install --root-directory=${ROOT_MNT} ${ROOT_DEV}
+################################################################################
+#
+if [ ! -f ${ROOT_MNT}/etc/inittab.dist ];then
+    /bin/cp ${ROOT_MNT}/etc/inittab ${ROOT_MNT}/etc/inittab.dist
+fi
+sed -e 's/^#T0/T0/' -e 's/9600/19200/' ${ROOT_MNT}/etc/inittab.dist > ${ROOT_MNT}/etc/inittab
+
+cat<<EOF > ${ROOT_MNT}/etc/network/interfaces
+auto lo eth0
+iface lo inet loopback
+iface eth0 inet dhcp 
+EOF
+
+################################################################################
+# chroot fixups
+# export ROOTPW=$(dd if=/dev/random bs=512 count=1 2>/dev/null|sha256sum | awk '{print $1}')
+export ROOTPW='fai'
+cat<<EOF >${ROOT_MNT}/root/fixups
+#!/bin/bash
+export PATH='/bin:/usr/bin:/usr/local/bin:/sbin:/usr/sbin:/usr/local/sbin'
+echo root:${ROOTPW}|chpasswd root
+EOF
+chmod 755 ${ROOT_MNT}/root/fixups
+( chroot ${ROOT_MNT} /root/fixups ) 
+echo "root password is [ ${ROOTPW} ]"
+
+################################################################################
+# clean up, reboot
+fuser -ku /target
+umount /target
+reboot

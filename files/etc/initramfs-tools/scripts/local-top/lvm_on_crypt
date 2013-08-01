@@ -1,0 +1,34 @@
+#!/bin/sh
+# Example boot script
+
+PREREQ="mdadm" 
+
+prereqs(){         
+    echo "$PREREQ" 
+}
+
+. /scripts/functions
+
+case $1 in 
+    prereqs)
+        prereqs
+        exit 0
+    ;; 
+esac
+
+
+# Begin real processing below this line 
+
+log_begin_msg "Starting lvm-on-crypt"
+
+# start all crypto volumes in /boot/crypttab
+/bin/cat /boot/crypttab | awk '{print "cryptsetup --key-file "$3" luksOpen "$2" "$1}'| while read READY_DEVICE ; do
+    ${READY_DEVICE}
+done
+
+# start all volume groups that were just decrypted
+for VG in `lvm pvscan | grep "^ *PV"|awk '{print $4}'| sort -u`;do 
+    lvm vgchange -a y ${VG}
+done
+
+exit 0
