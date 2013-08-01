@@ -1,4 +1,5 @@
 #! /bin/bash
+exit -1
 
 # Echo architecture and OS name in uppercase. Do NOT remove these two lines.
 uname -s | tr '[:lower:]' '[:upper:]'
