@@ -1,27 +1,16 @@
 #!/bin/bash
-echo '################################################################################'
-echo '#                                                                              #'
-echo '#                                                                              #'
-echo '#                                00_override                                   #'
-echo '#                                                                              #'
-echo '#                                                                              #'
-echo '################################################################################'
-# get some correct time up in here.
-/usr/sbin/ntpdate 0.pool.ntp.org
-/sbin/hwclock --systohc
-
 /bin/bash 
 HOSTNAME=$(/bin/hostname -s)
 case "${HOSTNAME}" in
-  pink|black)
+  pink)
+      echo "shelling out"
       /bin/bash
       exit 0;
   ;;
   *)
-      # these are our wifi sniffing boxes, they get installed via regular fai
-      echo "shelling out"
+      echo "shell 2"
       /bin/bash
   ;;
 esac
-exit 1;
-
+echo "shell 3"
+/bin/bash
