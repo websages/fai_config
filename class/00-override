@@ -3,6 +3,7 @@
 /usr/sbin/ntpdate 0.pool.ntp.org
 /sbin/hwclock --systohc
 
+exit 1;
 HOSTNAME=$(/bin/hostname -s)
 case "${HOSTNAME}" in
   pink|black)
