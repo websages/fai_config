@@ -19,11 +19,13 @@ case $HOSTNAME in
 #    soekris)
 #	echo "SOEKRIS DHCPC DEMO XORG GNOME";;
     audhumla)
-	echo "SOEKRIS";;
+	echo "SOEKRIS" ;;
     black)
 	echo "FAIBASE DHCPC" ;;
+    pink)
+	echo "CRYPTWS DHCPC" ;;
     *)
-	echo "FAIBASE DHCPC" ;;
+	echo "POTATO DHCPC" ;;
 esac
 
 (ifclass I386 || ifclass AMD64) && echo GRUB 

@@ -10,18 +10,15 @@
 # ../files/etc/initramfs-tools/hooks/lvm_on_crypt 
 # ../files/etc/initramfs-tools/scripts/local-top/lvm_on_crypt 
 #
-disk_config sda bootable:1
-primary  /boot         128	  ext3   rw
-primary  -:encrypt    18432-20480 -      -
-primary  -:encrypt    1024-       -      -
- 
-disk_config lvm
-vg vg0                 sda2
-vg vg_opt              sda3
-vg0-swap               swap          2048    swap   sw                   
-vg0-root               /              768    ext3   rw,errors=remount-ro
-vg0-home               /home          256    ext3   rw                  
-vg0-tmp                /tmp          2048    ext3   rw                  
-vg0-usr                /usr          8192    ext3   rw                   
-vg0-var                /var          4096    ext3   rw                   
-vg_opt-opt             /opt           256-   ext3   rw                   
+disk_config /dev/sda
+primary /boot     250   ext3    defaults
+primary -        1024   ext3    -
+primary -        6000-   ext3   -
+# logical -        1000   -       -
+# logical -        1000   -       -
+# logical -          10-  -       -
+
+disk_config cryptsetup
+swap    swap   /dev/sda2        swap    defaults
+tmp     /      /dev/sda3        ext2    defaults,errors=remount-ro
+# luks    /local00        /dev/sda7       ext3    defaults,errors=remount-ro  createopts="-m     0"
