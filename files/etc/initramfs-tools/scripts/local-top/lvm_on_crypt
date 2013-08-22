@@ -20,11 +20,24 @@ esac
 # Begin real processing below this line 
 
 log_begin_msg "Starting lvm-on-crypt"
-
-# start all crypto volumes in /boot/crypttab
-/bin/cat /boot/crypttab | awk '{print "cryptsetup --key-file "$3" luksOpen "$2" "$1}'| while read READY_DEVICE ; do
-    ${READY_DEVICE}
-done
+if [ -b /dev/mmcblk0p1 ];then 
+    modprobe ext2
+    if [ ! -d /mnt/boot/ ]; then mkdir -p /mnt/boot/ ;fi
+    mount /dev/mmcblk0p1 /mnt/boot
+    /bin/cat /mnt/boot/$(hostname)/crypttab | \
+      awk '{print "cryptsetup --key-file /mnt"$3" luksOpen "$2" "$1}'| \
+        while read READY_DEVICE ; do
+            echo "${READY_DEVICE}"
+            ${READY_DEVICE}
+        done
+else 
+    if [ -f /boot/crypttab ]; then 
+        # start all crypto volumes in /boot/crypttab
+        /bin/cat /boot/crypttab | awk '{print "cryptsetup --key-file "$3" luksOpen "$2" "$1}'| while read READY_DEVICE ; do
+            ${READY_DEVICE}
+        done
+    fi
+fi
 
 # start all volume groups that were just decrypted
 for VG in `lvm pvscan | grep "^ *PV"|awk '{print $4}'| sort -u`;do 

@@ -26,4 +26,5 @@ exim4
 eject
 locales
 console-common
+console-setup
 pciutils usbutils

@@ -22,3 +22,6 @@ MODULESLIST="usbkbd ehci-hcd ohci-hcd uhci-hcd usbhid psmouse"
 
 # erros in tasks greater than this value will cause the installation to stop
 STOP_ON_ERROR=700
+
+DEBUG=1
+debug=1
