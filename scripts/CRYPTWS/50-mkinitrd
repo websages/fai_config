@@ -11,12 +11,16 @@ rsync -avzP /var/lib/fai/config/files/etc/initramfs-tools/ $target/etc/initramfs
 # copy important files back to nfsroot so we can run mkinitramfs
 cp $target/etc/fstab /etc/fstab
 
+[ ! -d "$target/boot/$(hostname -s)" ] && mkdir "$target/boot/$(hostname -s)"
+[ ! -d "$target/boot/" ] && mkdir "/boot/$(hostname -s)"
+
 if [ -b /dev/mmcblk0p1 ]; then
     mount /dev/mmcblk0p1 /mnt
-    cp /mnt/$(hostname)/crypttab $target/boot/
-    cp /mnt/$(hostname)/crypt_dev_sda2 $target/boot/
-    cp /mnt/$(hostname)/crypttab /boot/
-    cp /mnt/$(hostname)/crypt_dev_sda2 /boot/
+    cp /mnt/$(hostname)/crypttab $target/boot/$(hostname -s)
+    cp /mnt/$(hostname)/crypt_dev_sda2 $target/boot/$(hostname -s)
+
+    cp /mnt/$(hostname)/crypttab /boot/$(hostname -s)
+    cp /mnt/$(hostname)/crypt_dev_sda2 /boot/$(hostname -s)
     umount /mnt
 fi
 

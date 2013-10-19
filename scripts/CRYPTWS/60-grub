@@ -6,7 +6,7 @@ DEVICE='sda'
 
 fcopy -Uv /boot/grub/menu.lst
 
-sed -i -e 's/#GROOT#/(hd0,0)/' -e 's/#ROOT_PARTITION#/\/dev\/mapper\/vg0-root/' $target/boot/grub/menu.lst
+sed -i -e 's/#GROOT#/(hd0,0)/' -e 's/#ROOT_PARTITION#/\/dev\/mapper\/vg0-root/' -e"s/#HOSTNAME#/$(hostname -s)/" $target/boot/grub/menu.lst
 chroot $target update-grub
 
 # (hd0)   /dev/sda
