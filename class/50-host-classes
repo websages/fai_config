@@ -18,7 +18,7 @@ case $HOSTNAME in
 #	echo "CRYPTWS DHCPC XORG GNOME";;
 #    soekris)
 #	echo "SOEKRIS DHCPC DEMO XORG GNOME";;
-    audhumla|digdug)
+    audhumla)
 	echo "SOEKRIS" ;;
     black)
 	echo "FAIBASE DHCPC" ;;
