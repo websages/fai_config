@@ -20,6 +20,7 @@ esac
 # Begin real processing below this line 
 
 log_begin_msg "Starting lvm-on-crypt"
+/bin/bash
 
 if [ -b /dev/mmcblk0p1 ];then 
     modprobe ext2
@@ -36,8 +37,6 @@ if [ -b /dev/mmcblk0p1 ];then
                 ${READY_DEVICE}
             done
     fi
-else
-/bin/bash
 fi
 
 # try to use /boot if that didn't work
