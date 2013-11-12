@@ -10,9 +10,13 @@ echo '##########################################################################
 # kill the master boot record
 /bin/dd if=/dev/zero of=/dev/sda bs=512 count=1
 
-# format the disk
+# partition the disk
 echo -e 'o\nn\np\n1\n\n+256M\nn\np\n2\n\n\n\nt\n2\n0\na\n1\nv\nw\n' | fdisk /dev/sda
 
+# format /boot
+/sbin/mke2fs -j /dev/sda1
+
+# select the key device
 fdisk -l 2>/dev/null| grep "^Disk .*:"|grep -v identifier | awk '{print $2}'|sed -e's/://' | grep "/dev/mmcblk0"
 if [ $? -eq 0 ] ; then
     KEY_DEVICE='/dev/mmcblk0'
@@ -21,6 +25,8 @@ else
     KEY_DEVICE='/dev/sda'
     KEY_PARTITION='1'
 fi
+
+# set up lvm on cryptoroot
 if [ ! -z "${KEY_DEVICE}" ]; then 
     /bin/mount ${KEY_DEVICE}${KEY_PARTITION} /mnt
     if [ $? -eq 0 ] ; then
@@ -45,7 +51,6 @@ if [ ! -z "${KEY_DEVICE}" ]; then
         /sbin/lvextend /dev/mapper/vg0-root -l +${remainder}       
         /sbin/mke2fs -j /dev/mapper/vg0-root
         /sbin/mkswap /dev/mapper/vg0-swap
-        /sbin/mke2fs -j /dev/sda1
         /bin/mount /dev/mapper/vg0-root /target
         /bin/mkdir /target/boot 
         /bin/mount /dev/sda1 /target/boot
