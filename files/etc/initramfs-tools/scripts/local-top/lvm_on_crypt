@@ -36,6 +36,8 @@ if [ -b /dev/mmcblk0p1 ];then
                 ${READY_DEVICE}
             done
     fi
+else
+/bin/bash
 fi
 
 # try to use /boot if that didn't work
