@@ -22,7 +22,7 @@ case $HOSTNAME in
 	echo "SOEKRIS" ;;
     black)
 	echo "FAIBASE DHCPC" ;;
-    pink)
+    pink|mars)
 	echo "CRYPTWS DHCPC" ;;
     *)
 	echo "POTATO DHCPC" ;;
