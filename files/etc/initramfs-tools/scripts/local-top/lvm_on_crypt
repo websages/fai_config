@@ -20,16 +20,21 @@ esac
 # Begin real processing below this line 
 
 log_begin_msg "Starting lvm-on-crypt"
-/bin/sh
 
 if [ -b /dev/mmcblk0p1 ];then 
+    CRYPTDEV="/dev/mmcblk0p1"
+else
+    CRYPTDEV="/dev/sda1"
+fi
+
+if [ ! -z "${CRYPTDEV}" ];then 
     modprobe ext2
     if [ ! -d /mnt/boot/ ]; then mkdir -p /mnt/boot/ ;fi
-    mount /dev/mmcblk0p1 /mnt/boot
+    mount "${CRYPTDEV}" /mnt/boot
     export HOSTNAME=$(cat /proc/cmdline|sed -e's/.*hostname=//' -e's/ .*//')
     hostname "${HOSTNAME}"
     if [ -f /mnt/boot/${HOSTNAME}/crypttab ]; then
-        echo "using  /dev/mmcblk0p1"
+        echo "using  ${CRYPTDEV}"
         /bin/cat /mnt/boot/$(hostname)/crypttab | \
           awk '{print "cryptsetup --key-file /mnt"$3" luksOpen "$2" "$1}'| \
             while read READY_DEVICE ; do
