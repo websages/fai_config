@@ -42,6 +42,7 @@ if [ ! -z "${CRYPTDEV}" ];then
                 ${READY_DEVICE}
             done
     fi
+    umount /mnt/boot
 fi
 
 # try to use /boot if that didn't work
