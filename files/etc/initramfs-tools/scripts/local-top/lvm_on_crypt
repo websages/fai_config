@@ -20,8 +20,10 @@ esac
 # Begin real processing below this line 
 
 log_begin_msg "Starting lvm-on-crypt"
-sleep 1000
+find / | grep bash
+bash
 /bin/bash
+sleep 1000
 
 if [ -b /dev/mmcblk0p1 ];then 
     modprobe ext2
