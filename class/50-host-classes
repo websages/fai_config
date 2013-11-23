@@ -24,6 +24,8 @@ case $HOSTNAME in
 	echo "FAIBASE DHCPC" ;;
     pink|mars)
 	echo "CRYPTWS DHCPC" ;;
+    eir)
+	echo "CRYPT_LAPTOP" ;;
     *)
 	echo "POTATO DHCPC" ;;
 esac

@@ -1,0 +1,25 @@
+#!/bin/bash
+export PATH="/usr/local/sbin:/usr/local/bin:/usr/lib/fai:/usr/sbin:/usr/bin:/sbin:/bin"
+error=0 ; trap "error=$((error|1))" ERR
+
+DEVICE='sda'
+
+fcopy -Uv /boot/grub/menu.lst
+
+sed -i -e 's/#GROOT#/(hd0,0)/' -e 's/#ROOT_PARTITION#/\/dev\/mapper\/vg0-root/' -e"s/#HOSTNAME#/$(hostname -s)/" $target/boot/grub/menu.lst
+chroot $target update-grub
+
+# (hd0)   /dev/sda
+for DEV in $(ls -l /dev/disk/by-id/ | grep "${DEVICE}$" | sed -e 's/ ->.*//' -e's/.* //'); do
+    GRUB_DEV=$(grep "$DEV" /target/boot/grub/device.map | awk '{print $1}' | sed -e 's/[\(\)]//g')
+    if [ ! -z "${GRUB_DEV}" ]; then
+        grub-install --root-directory=$target "${GRUB_DEV},0" 
+        grub-install --root-directory=$target "${GRUB_DEV}" 
+    fi
+done
+
+grub-install --root-directory=/target "hd0,0"
+grub-install --root-directory=/target "hd0"
+
+exit $error
+
