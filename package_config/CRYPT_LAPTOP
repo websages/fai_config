@@ -33,3 +33,5 @@ apt-file
 autodir
 gnome-desktop-environment
 xinit
+xserver-xorg
+x11-common
