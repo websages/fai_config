@@ -1,13 +1,4 @@
 #!/bin/bash
-cat<<EOF > $target/root/add_opt
-#!/bin/bash
-/usr/sbin/groupadd -gid 400 opt
-/usr/sbin/useradd --uid 400 --gid 400 -m --home-dir /home/opt --comment "Optional Software Administrator" opt
-/bin/echo "opt:fai" | /usr/sbin/chpasswd
-EOF
-chmod 755 $target/root/add_opt
-/usr/sbin/chroot $target /root/add_opt
-
 /bin/cp $target/etc/default/autodir $target/etc/default/autodir.dist
 /bin/cat<<EOF > $target/etc/default/autodir
 RUN_AUTOHOME="yes"
@@ -29,3 +20,20 @@ AUTOGROUP_OPTIONS="realpath=/opt/auto/group,level=2"
 #AUTOHOME_MAXBACK=150
 #AUTOGROUP_MAXBACK=150
 EOF
+
+mkdir -p $target/root/.ssh
+chmod 750 $target/root/.ssh
+cat<<EOF > $target/root/.ssh/authorized_keys
+ssh-dss AAAAB3NzaC1kc3MAAACBALAAexGS68zt3EQ4zwz2h8KXoy2zFsxORJNETL/iiRP7EeZLMX3O/2tnfENP3oVZXqTZx9Vw9+ZslmOguRh4yvHK/frmSWe4mty9MWq9FSiYeGjBP5KBLtIbwlnF16m7rI1UIs2dB9ht4bmlM6BqOd2c0t6nvxF+mzHIuxxyGCvfAAAAFQDcoz0QCzcDq/1PPNdoleFxn3chsQAAAIBKAPfo5V60O0L3uu/5NLfA0Q1+8GoHU8LTecMmvhPnKrrsZ61l9nz3qvLrZ0x2+uCpr9e9Bu4w8pmGgvPcaubitcQ2MP/mebewJfZ79yjcQ5GtXf/HDfOmT/zMa4NRPzXwXeYTnPXJ9EfF0UfbMV27ahhQf2zAxBG7bzn5YWvoYgAAAIBNulwC8ELcTrevzYhf842d6k/z5P8uhvDvuW9UtkwAutfzTffv5zKg3pD1adrBwE/0A67q0HZfGTPFCue4jKEVGedO8S15caMMFhqBUhGIDLJUoDLe6keYChDduaLr1yd7fNCxQpFsXEUimRF0IsQ8Zx5uqvCw2U7XbXqhxFJgnQ== whitejs@feynman
+EOF
+chmod 640 $target/root/.ssh/authorized_keys
+
+cat<<EOF > $target/root/add_opt
+#!/bin/bash
+/usr/sbin/groupadd -gid 400 opt
+/usr/sbin/useradd --uid 400 --gid 400 -m --home-dir /home/opt --comment "Optional Software Administrator" opt
+/bin/echo "opt:fai" | /usr/sbin/chpasswd
+EOF
+chmod 755 $target/root/add_opt
+/usr/sbin/chroot $target /root/add_opt
+
