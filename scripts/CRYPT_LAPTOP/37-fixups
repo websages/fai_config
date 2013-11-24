@@ -1,10 +1,15 @@
 #!/bin/bash
+cat<<EOF > $target/root/add_opt
+#!/bin/bash
 /usr/sbin/groupadd -gid 400 opt
 /usr/sbin/useradd --uid 400 --gid 400 -m --home-dir /home/opt --comment "Optional Software Administrator" opt
 /bin/echo "opt:fai" | /usr/sbin/chpasswd
+EOF
+chmod 755 $target/root/add_opt
+/usr/sbin/chroot $target /root/add_opt
 
-/bin/cp /etc/default/autodir /etc/default/autodir.dist
-/bin/cat<<EOF > /etc/default/autodir
+/bin/cp $target/etc/default/autodir $target/etc/default/autodir.dist
+/bin/cat<<EOF > $target/etc/default/autodir
 RUN_AUTOHOME="yes"
 RUN_AUTOGROUP="yes"
 AUTOHOME_HOME=/home
