@@ -36,4 +36,7 @@ cat<<EOF > $target/root/add_opt
 EOF
 chmod 755 $target/root/add_opt
 /usr/sbin/chroot $target /root/add_opt
+/bin/rm $target/root/add_opt
 
+/bin/cp $target/etc/gdm3/daemon.conf $target/etc/gdm3/daemon.conf.dist
+/bin/sed -ie 's/\[security\]/[security]\nDisallowTCP=false/' $target/etc/gdm3/daemon.conf
