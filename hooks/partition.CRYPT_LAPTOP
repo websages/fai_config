@@ -54,7 +54,7 @@ if [ ! -z "${KEY_DEVICE}" ]; then
         /sbin/lvcreate -n tmp     -L  6G vg0 
         /sbin/lvcreate -n usr     -L 12G vg0 
         /sbin/lvcreate -n var     -L  6G vg0 
-        /sbin/lvcreate -n scratch -L 20G vg0 
+        /sbin/lvcreate -n home    -L 20G vg0 
         /sbin/lvcreate -n opt     -L 10G vg0
         remainder=$(/sbin/vgdisplay vg0 | grep "Free *PE" | sed -e's/.*Size *//' -e 's/ .*//')
         /sbin/lvextend /dev/mapper/vg0-opt -l +${remainder}       
@@ -63,7 +63,7 @@ if [ ! -z "${KEY_DEVICE}" ]; then
         /sbin/mkswap /dev/mapper/vg0-swap
         /sbin/mke2fs -j /dev/mapper/vg0-root
         /sbin/mke2fs -j /dev/mapper/vg0-opt
-        /sbin/mke2fs -j /dev/mapper/vg0-scratch
+        /sbin/mke2fs -j /dev/mapper/vg0-home
         /sbin/mke2fs -j /dev/mapper/vg0-tmp
         /sbin/mke2fs -j /dev/mapper/vg0-usr
         /sbin/mke2fs -j /dev/mapper/vg0-var
@@ -75,7 +75,7 @@ if [ ! -z "${KEY_DEVICE}" ]; then
         echo "Creating Mount Points"
         /bin/mkdir -p /target/boot 
         /bin/mkdir -p /target/opt
-        /bin/mkdir -p /target/scratch
+        /bin/mkdir -p /target/home
         /bin/mkdir -p /target/tmp
         /bin/mkdir -p /target/usr
         /bin/mkdir -p /target/var
@@ -85,7 +85,7 @@ if [ ! -z "${KEY_DEVICE}" ]; then
 #        echo "Mounting File Systems"
 #        /bin/mount /dev/sda1               /target/boot
 #        /bin/mount /dev/mapper/vg0-opt     /target/opt
-#        /bin/mount /dev/mapper/vg0-scratch /target/scratch
+#        /bin/mount /dev/mapper/vg0-home    /target/home
 #        /bin/mount /dev/mapper/vg0-tmp     /target/tmp
 #        /bin/mount /dev/mapper/vg0-usr     /target/usr
 #        /bin/mount /dev/mapper/vg0-var     /target/var
@@ -94,9 +94,8 @@ if [ ! -z "${KEY_DEVICE}" ]; then
         echo "/dev/vg0/root    /        ext3        rw,errors=remount-ro       0        1" >  /tmp/fai/fstab
         echo "/dev/sda1        /boot    ext3        rw                         0        2" >> /tmp/fai/fstab
         echo "/dev/vg0/swap    none     swap        sw                         0        0" >> /tmp/fai/fstab
-        echo "/dev/vg0/home    /home    ext3        rw                         0        2" >> /tmp/fai/fstab
         echo "/dev/vg0/opt     /opt     ext3        rw                         0        2" >> /tmp/fai/fstab
-        echo "/dev/vg0/scratch /scratch ext3        rw                         0        2" >> /tmp/fai/fstab
+        echo "/dev/vg0/home    /home    ext3        rw                         0        2" >> /tmp/fai/fstab
         echo "/dev/vg0/tmp     /tmp     ext3        rw                         0        2" >> /tmp/fai/fstab
         echo "/dev/vg0/usr     /usr     ext3        rw                         0        2" >> /tmp/fai/fstab
         echo "/dev/vg0/var     /var     ext3        rw                         0        2" >> /tmp/fai/fstab
