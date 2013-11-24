@@ -68,6 +68,9 @@ if [ ! -z "${KEY_DEVICE}" ]; then
         /sbin/mke2fs -j /dev/mapper/vg0-usr
         /sbin/mke2fs -j /dev/mapper/vg0-var
 
+        # Mounts
+        /bin/mount /dev/mapper/vg0-root    /target
+
         # Mount Points
         /bin/mkdir -p /target/boot 
         /bin/mkdir -p /target/opt
@@ -76,8 +79,7 @@ if [ ! -z "${KEY_DEVICE}" ]; then
         /bin/mkdir -p /target/usr
         /bin/mkdir -p /target/var
 
-        # Mounts
-        /bin/mount /dev/mapper/vg0-root    /target
+        # Mounts (cont.)
         /bin/mount /dev/sda1               /target/boot
         /bin/mount /dev/mapper/vg0-opt     /target/opt
         /bin/mount /dev/mapper/vg0-scratch /target/scratch
@@ -101,3 +103,4 @@ else
     exit -1;
 fi
 skiptask partition
+skiptask mountdisks
