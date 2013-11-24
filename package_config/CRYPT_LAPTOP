@@ -28,4 +28,8 @@ locales
 console-common
 console-setup
 pciutils usbutils
+# --
+apt-file
+autodir
 gnome-desktop-environment
+xinit
