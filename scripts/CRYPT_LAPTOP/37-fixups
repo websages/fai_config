@@ -31,7 +31,7 @@ chmod 640 $target/root/.ssh/authorized_keys
 cat<<EOF > $target/root/add_opt
 #!/bin/bash
 /usr/sbin/groupadd --gid 400 opt
-/usr/sbin/useradd --uid 400 --gid 400 -m --home-dir /home/opt --comment "Optional Software Administrator" opt
+/usr/sbin/useradd --uid 400 --gid 400 -m --home-dir /home/opt --comment "Optional Software Administrator" --shell /bin/bash opt
 /bin/echo "opt:fai" | /usr/sbin/chpasswd
 EOF
 chmod 755 $target/root/add_opt
