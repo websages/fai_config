@@ -45,7 +45,7 @@ if [ ! -z "${KEY_DEVICE}" ]; then
         /bin/umount /mnt
         /sbin/pvcreate /dev/mapper/cryptoroot
         /sbin/vgcreate vg0 /dev/mapper/cryptoroot  
-        /sbin/lvcreate -n swap -L 4G vg0 
+        /sbin/lvcreate -n swap -L 2G vg0 
         /sbin/lvcreate -n root -L 8G vg0 
         remainder=$(/sbin/vgdisplay vg0 | grep "Free *PE" | sed -e's/.*Size *//' -e 's/ .*//')
         /sbin/lvextend /dev/mapper/vg0-root -l +${remainder}       
