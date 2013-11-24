@@ -42,6 +42,9 @@ libdrm2
 libdrm-intel1
 libgl1-mesa-dri
 # --
+firmware-b43-installer
+b43-fwcutter
+# --
 slapd
 shelldap
 rdesktop
