@@ -68,12 +68,10 @@ if [ ! -z "${KEY_DEVICE}" ]; then
         /sbin/mke2fs -j /dev/mapper/vg0-usr
         /sbin/mke2fs -j /dev/mapper/vg0-var
 
-        # Mounts
+        # Mount Points
         echo "Mounting vg0-root on /target"
         /bin/mount /dev/mapper/vg0-root    /target
         echo $?
-
-        # Mount Points
         echo "Creating Mount Points"
         /bin/mkdir -p /target/boot 
         /bin/mkdir -p /target/opt
@@ -81,15 +79,16 @@ if [ ! -z "${KEY_DEVICE}" ]; then
         /bin/mkdir -p /target/tmp
         /bin/mkdir -p /target/usr
         /bin/mkdir -p /target/var
+        /bin/umount /target
 
-        # Mounts (cont.)
-        echo "Mounting File Systems"
-        /bin/mount /dev/sda1               /target/boot
-        /bin/mount /dev/mapper/vg0-opt     /target/opt
-        /bin/mount /dev/mapper/vg0-scratch /target/scratch
-        /bin/mount /dev/mapper/vg0-tmp     /target/tmp
-        /bin/mount /dev/mapper/vg0-usr     /target/usr
-        /bin/mount /dev/mapper/vg0-var     /target/var
+#        # Mounts (cont.)
+#        echo "Mounting File Systems"
+#        /bin/mount /dev/sda1               /target/boot
+#        /bin/mount /dev/mapper/vg0-opt     /target/opt
+#        /bin/mount /dev/mapper/vg0-scratch /target/scratch
+#        /bin/mount /dev/mapper/vg0-tmp     /target/tmp
+#        /bin/mount /dev/mapper/vg0-usr     /target/usr
+#        /bin/mount /dev/mapper/vg0-var     /target/var
 
         # File System Table (fstab)
         echo "/dev/vg0/root    /        ext3        rw,errors=remount-ro       0        1" >  /tmp/fai/fstab
