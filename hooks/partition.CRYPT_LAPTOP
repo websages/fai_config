@@ -69,9 +69,12 @@ if [ ! -z "${KEY_DEVICE}" ]; then
         /sbin/mke2fs -j /dev/mapper/vg0-var
 
         # Mounts
+        echo "Mounting vg0-root on /target"
         /bin/mount /dev/mapper/vg0-root    /target
+        echo $?
 
         # Mount Points
+        echo "Creating Mount Points"
         /bin/mkdir -p /target/boot 
         /bin/mkdir -p /target/opt
         /bin/mkdir -p /target/scratch
@@ -80,6 +83,7 @@ if [ ! -z "${KEY_DEVICE}" ]; then
         /bin/mkdir -p /target/var
 
         # Mounts (cont.)
+        echo "Mounting File Systems"
         /bin/mount /dev/sda1               /target/boot
         /bin/mount /dev/mapper/vg0-opt     /target/opt
         /bin/mount /dev/mapper/vg0-scratch /target/scratch
