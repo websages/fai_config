@@ -103,4 +103,3 @@ else
     exit -1;
 fi
 skiptask partition
-skiptask mountdisks
