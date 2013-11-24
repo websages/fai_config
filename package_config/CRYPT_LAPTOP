@@ -28,6 +28,7 @@ locales
 console-common
 console-setup
 pciutils usbutils
+sudo
 # --
 apt-file
 autodir
@@ -35,3 +36,13 @@ gnome-desktop-environment
 xinit
 xserver-xorg
 x11-common
+gconf-editor
+tmux
+libdrm2
+libdrm-intel1
+libgl1-mesa-dri
+# --
+slapd
+shelldap
+rdesktop
+
