@@ -1,0 +1,26 @@
+#!/bin/bash
+/usr/sbin/groupadd -gid 400 opt
+/usr/sbin/useradd --uid 400 --gid 400 -m --home-dir /home/opt --comment "Optional Software Administrator" opt
+/bin/echo "opt:fai" | /usr/sbin/chpasswd
+
+/bin/cp /etc/default/autodir /etc/default/autodir.dist
+/bin/cat<<EOF > /etc/default/autodir
+RUN_AUTOHOME="yes"
+RUN_AUTOGROUP="yes"
+AUTOHOME_HOME=/home
+AUTOGROUP_HOME=/group
+AUTOHOME_TIMEOUT=660
+AUTOGROUP_TIMEOUT=300
+AUTOHOME_MODULE="/usr/lib/autodir/autohome.so"
+AUTOGROUP_MODULE="/usr/lib/autodir/autogroup.so"
+AUTOHOME_OPTIONS="realpath=/opt/auto/home,level=2,skel=/etc/skel"
+AUTOGROUP_OPTIONS="realpath=/opt/auto/group,level=2"
+#AUTOHOME_BACKUP="'/bin/tar cf /tmp/%N.tar.gz %L'"
+#AUTOGROUP_BACKUP="'/bin/tar cf /tmp/%N.tar.gz %L'"
+#AUTOHOME_BACKWAIT=600
+#AUTOGROUP_BACKWAIT=600
+#AUTOHOME_BACKPRI=30
+#AUTOGROUP_BACKPRI=30
+#AUTOHOME_MAXBACK=150
+#AUTOGROUP_MAXBACK=150
+EOF
