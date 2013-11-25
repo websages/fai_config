@@ -47,7 +47,7 @@ chmod 755 $target/root/add_opt
 
 /bin/mkdir -p $target/etc/ldap/ssl
 /bin/cp $FAI/files/etc/ldap/ldap.conf.tpl $target/etc/ldap/ldap.conf.tpl
-/bin/sed -ie "s/~ANON_SECRET~/${ANON_SECRET}/g" $target/etc/ldap/ldap.conf.tpl > $target/etc/ldap/ldap.conf
+/bin/sed -e "s/~ANON_SECRET~/${ANON_SECRET}/g" $target/etc/ldap/ldap.conf.tpl > $target/etc/ldap/ldap.conf
 /bin/cp $FAI/files/etc/ldap/ssl/domain_trustchain.pem $target/etc/ldap/ssl/domain_trustchain.pem
 /bin/cp $FAI/files/etc/nsswitch.conf $target/etc/ldap/ldap.conf
 (cd $target/etc; mv libnss-ldap.conf libnss-ldap.conf.dist; ln -s ldap/ldap.conf libnss-ldap.conf )
