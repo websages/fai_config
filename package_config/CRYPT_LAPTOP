@@ -29,10 +29,11 @@ console-common
 console-setup
 pciutils usbutils
 sudo
-# --
+# -- Desktop
 apt-file
 autodir
 gnome-desktop-environment
+gnome-common
 xinit
 xserver-xorg
 x11-common
@@ -41,11 +42,21 @@ tmux
 libdrm2
 libdrm-intel1
 libgl1-mesa-dri
-# --
+maximus
+flashplugin-nonfree
+gnome-shell-extensions
+gnome-tweak-tool
+unzip
+# -- Wifi
 firmware-b43-installer
 b43-fwcutter
-# --
+# -- LDAP
 slapd
 shelldap
 rdesktop
-
+libpam-ldap
+libnss-ldap
+#-- To be able to do anything
+git
+build-essential
+# apt-get build-dep gnome-shell-extensions

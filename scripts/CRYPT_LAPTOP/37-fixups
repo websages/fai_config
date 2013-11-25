@@ -40,3 +40,15 @@ chmod 755 $target/root/add_opt
 
 /bin/cp $target/etc/gdm3/daemon.conf $target/etc/gdm3/daemon.conf.dist
 /bin/sed -ie 's/\[security\]/[security]\nDisallowTCP=false/' $target/etc/gdm3/daemon.conf
+
+
+# get rid of fat gnome title bars
+# sed -i "/title_vertical_pad/s/value=\"[0-9]\{1,2\}\"/value=\"0\"/g" /usr/share/themes/Adwaita/metacity-1/metacity-theme-3.xml
+
+mkdir -p $target/etc/ldap/ssl
+fcopy /etc/ldap/ldap.conf.tpl $target/etc/ldap/ldap.conf.tpl
+sed -ie "s/~ANON_SECRET~/${ANON_SECRET}/g" $target/etc/ldap/ldap.conf.tpl > $target/etc/ldap/ldap.conf
+fcopy /etc/ldap/ssl/domain_trustchain.pem $target/etc/ldap/ssl/domain_trustchain.pem
+fcopy /etc/nsswitch.conf $target/etc/ldap/ldap.conf
+(cd $target/etc; mv libnss-ldap.conf libnss-ldap.conf.dist; ln -s ldap/ldap.conf libnss-ldap.conf )
+(cd $target/etc; mv pam_ldap.conf pam_ldap.conf.dist;       ln -s ldap/ldap.conf pam_ldap.conf )
