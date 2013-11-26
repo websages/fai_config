@@ -29,6 +29,8 @@ console-common
 console-setup
 pciutils usbutils
 sudo
+ntpdate
+ntp
 # -- Desktop
 apt-file
 autodir
