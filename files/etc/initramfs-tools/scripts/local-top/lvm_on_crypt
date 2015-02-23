@@ -1,33 +1,33 @@
 #!/bin/sh
 # Example boot script
 
-PREREQ="mdadm" 
+PREREQ="mdadm"
 
-prereqs(){         
-    echo "$PREREQ" 
+prereqs(){
+    echo "$PREREQ"
 }
 
 . /scripts/functions
 
-case $1 in 
+case $1 in
     prereqs)
         prereqs
         exit 0
-    ;; 
+    ;;
 esac
 
 
-# Begin real processing below this line 
+# Begin real processing below this line
 
 log_begin_msg "Starting lvm-on-crypt"
 
-if [ -b /dev/mmcblk0p1 ];then 
+if [ -b /dev/mmcblk0p1 ];then
     CRYPTDEV="/dev/mmcblk0p1"
 else
     CRYPTDEV="/dev/sda1"
 fi
 
-if [ ! -z "${CRYPTDEV}" ];then 
+if [ ! -z "${CRYPTDEV}" ];then
     modprobe ext2
     if [ ! -d /mnt/boot/ ]; then mkdir -p /mnt/boot/ ;fi
     mount "${CRYPTDEV}" /mnt/boot
@@ -47,7 +47,7 @@ fi
 
 # try to use /boot if that didn't work
 if [ ! -b /dev/mapper/crypt_dev_sda2 ]; then
-    if [ -f /boot/${HOSTNAME}/crypttab ]; then 
+    if [ -f /boot/${HOSTNAME}/crypttab ]; then
         echo "using  /boot"
         # start all crypto volumes in /boot/crypttab
         /bin/cat /boot/${HOSTNAME}/crypttab | awk '{print "cryptsetup --key-file "$3" luksOpen "$2" "$1}'| while read READY_DEVICE ; do
@@ -57,11 +57,18 @@ if [ ! -b /dev/mapper/crypt_dev_sda2 ]; then
 fi
 
 if [ ! -b /dev/mapper/crypt_dev_sda2 ]; then
-    /bin/reboot
+    echo "no block device /dev/mapper/crypt_dev_sda2"
+    echo "dropping to /bin/bash"
+    /bin/bash
+    echo "dropping to /bash"
+    /bash
+    echo "dropping to bash"
+    bash
+    # /bin/reboot
 fi
 
 # start all volume groups that were just decrypted
-for VG in `lvm pvscan | grep "^ *PV"|awk '{print $4}'| sort -u`;do 
+for VG in `lvm pvscan | grep "^ *PV"|awk '{print $4}'| sort -u`;do
     lvm vgchange -a y ${VG}
 done
 
