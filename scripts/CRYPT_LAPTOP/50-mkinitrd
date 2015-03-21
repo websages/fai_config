@@ -30,6 +30,16 @@ aes-i586
 dm-mod
 dm-crypt
 sha256-generic
+xor
+algif_skcipher
+algif_hash
+af_alg
+crc16
+crc32_pclmul
+aesni-intel
+aes-x86_64
+cryptd
+dm-log
 EOF
 
 # Create an initrd that will actually boot
