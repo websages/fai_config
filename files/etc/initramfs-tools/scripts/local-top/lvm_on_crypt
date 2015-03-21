@@ -58,12 +58,8 @@ fi
 
 if [ ! -b /dev/mapper/crypt_dev_sda2 ]; then
     echo "no block device /dev/mapper/crypt_dev_sda2"
-    echo "dropping to /bin/bash"
-    /bin/bash
-    echo "dropping to /bash"
-    /bash
-    echo "dropping to bash"
-    bash
+    echo "dropping to shell"
+    /bin/sh
     # /bin/reboot
 fi
 
