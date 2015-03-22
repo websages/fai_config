@@ -15,13 +15,15 @@ esac
 # Begin real processing below this line
 [ ! -d ${DESTDIR}/boot ] && mkdir -p ${DESTDIR}/boot
 
-echo "copying cryptsetup and libcryptsetup.so.4initrd."
+echo "copying cryptsetup to the initrd."
 cp /sbin/cryptsetup "${DESTDIR}/sbin"
-cp /lib/x86_64-linux-gnu/libcryptsetup.so.4.6.0 ${DESTDIR}/lib/xx86_64-linux-gnu/libcryptsetup.so.4.6.0
-(cd ${DESTDIR}/lib/xx86_64-linux-gnu; ln -s libcryptsetup.so.4.6.0 libcryptsetup.so.4)
-
-# copy the crypttab and keys into /boot on initrd
-echo "copying boot to initrd."
-/bin/cp -rp /target/boot/${HOSTNAME} ${DESTDIR}/boot/${HOSTNAME}
-
+for lib inbcryptsetup.so.4.6.0 libpopt.so.0.0.0; do 
+    echo "copying ${lib} to the initrd."
+    cp /lib/x86_64-linux-gnu/${lib} ${DESTDIR}/lib/x86_64-linux-gnu/${lib}
+done
+(
+  cd ${DESTDIR}/lib/x86_64-linux-gnu
+  ln -s libcryptsetup.so.4.6.0 libcryptsetup.so.4
+  ln -s libpopt.so.0.0.0       libpopt.so.0
+)
 exit 0
