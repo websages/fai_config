@@ -24,5 +24,6 @@ for key in `/bin/cat /boot/crypttab|sed -e 's/#.*//g'|grep .|awk '{print $3}'`;d
         cp -p ${key} ${DESTDIR}/boot
     fi
 done
+cp /sbin/cryptsetup "${DESTDIR}/sbin"
 
 exit 0

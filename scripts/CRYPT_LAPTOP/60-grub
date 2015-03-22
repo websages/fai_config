@@ -18,8 +18,9 @@ for DEV in $(ls -l /dev/disk/by-id/ | grep "${DEVICE}$" | sed -e 's/ ->.*//' -e'
     fi
 done
 
-grub-install --root-directory=/target "hd0,0"
-grub-install --root-directory=/target "hd0"
+grub-mkdevicemap --device-map=/target/boot/grub/device.map
+grub-install --root-directory=/target "(hd1)"
+grub-install --root-directory=/target "(hd1,1)"
 
 exit $error
 
