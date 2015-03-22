@@ -13,6 +13,7 @@ case $1 in
 esac
 
 # Begin real processing below this line
+echo "copying boot to initrd."
 [ ! -d ${DESTDIR}/boot ] && mkdir -p ${DESTDIR}/boot
 
 # copy the crypttab into /boot on initrd
