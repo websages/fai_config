@@ -17,7 +17,7 @@ esac
 
 echo "copying cryptsetup to the initrd."
 cp /sbin/cryptsetup "${DESTDIR}/sbin"
-for lib in libcryptsetup.so.4.6.0 libpopt.so.0.0.0; do 
+for lib in libcryptsetup.so.4.6.0 libpopt.so.0.0.0 libgcrypt.so.20.0.2 libgpg-error.so.0.13.0; do 
     echo "copying ${lib} to the initrd."
     cp /lib/x86_64-linux-gnu/${lib} ${DESTDIR}/lib/x86_64-linux-gnu/${lib}
 done
@@ -25,5 +25,7 @@ done
   cd ${DESTDIR}/lib/x86_64-linux-gnu
   ln -s libcryptsetup.so.4.6.0 libcryptsetup.so.4
   ln -s libpopt.so.0.0.0       libpopt.so.0
+  ln -s libgcrypt.so.20.0.2    libgcrypt.so.20
+  ln -s libgpg-error.so.0.13.0 libgpg-error.so.0
 )
 exit 0
