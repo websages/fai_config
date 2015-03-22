@@ -13,18 +13,15 @@ case $1 in
 esac
 
 # Begin real processing below this line
-echo "copying boot to initrd."
 [ ! -d ${DESTDIR}/boot ] && mkdir -p ${DESTDIR}/boot
 
-# copy the crypttab into /boot on initrd
-/bin/cp -p /boot/crypttab ${DESTDIR}/boot
-
-# copy the keys referenced in the crypttab into /boot on initrd
-for key in `/bin/cat /boot/crypttab|sed -e 's/#.*//g'|grep .|awk '{print $3}'`;do
-    if [ -f ${key} ];then
-        cp -p ${key} ${DESTDIR}/boot
-    fi
-done
+echo "copying cryptsetup and libcryptsetup.so.4initrd."
 cp /sbin/cryptsetup "${DESTDIR}/sbin"
+cp /lib/x86_64-linux-gnu/libcryptsetup.so.4.6.0 ${DESTDIR}/lib/xx86_64-linux-gnu/libcryptsetup.so.4.6.0
+(cd ${DESTDIR}/lib/xx86_64-linux-gnu; ln -s libcryptsetup.so.4.6.0 libcryptsetup.so.4)
+
+# copy the crypttab and keys into /boot on initrd
+echo "copying boot to initrd."
+/bin/cp -rp /target/boot/${HOSTNAME} ${DESTDIR}/boot/${HOSTNAME}
 
 exit 0
