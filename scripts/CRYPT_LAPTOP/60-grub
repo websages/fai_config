@@ -15,7 +15,7 @@ set timeout=0
 set default=0
 menuentry "${HOSTNAME}" ro-root on cryptoloop" {
         set root=(hd1,0)
-        linux /vmlinuz-${KERNEL_VERSION} root=/dev/mapper/vg0-root ro
+        linux /vmlinuz-${KERNEL_VERSION} root=/dev/mapper/vg0-root ro hostname=${HOSTNAME}
         initrd /initrd.img-${KERNEL_VERSION}
 }
 EOF
