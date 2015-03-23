@@ -1,26 +1,26 @@
-#!/bin/bash
+#! /bin/bash
 export PATH="/usr/local/sbin:/usr/local/bin:/usr/lib/fai:/usr/sbin:/usr/bin:/sbin:/bin"
+[ -z "${target}" ] && export target='/target'
+
+KERNEL_VERSION=$(/bin/ls $target/lib/modules)
+
 error=0 ; trap "error=$((error|1))" ERR
 
-DEVICE='sda'
+if [ ! -d ${target}/boot/grub ];then
+    mkdir -p ${target}/boot/grub
+fi
 
-fcopy -Uv /boot/grub/menu.lst
+cat<<EOF >${target}/boot/grub/grub.cfg
+set timeout=0
+set default=0
+menuentry "${HOSTNAME}" ro-root on cryptoloop" {
+        set root=(hd1,0)
+        linux /vmlinuz-${KERNEL_VERSION} root=/dev/mapper/vg0-root ro
+        initrd /initrd.img-${KERNEL_VERSION}
+}
+EOF
 
-sed -i -e 's/#GROOT#/(hd0,0)/' -e 's/#ROOT_PARTITION#/\/dev\/mapper\/vg0-root/' -e"s/#HOSTNAME#/$(hostname -s)/" $target/boot/grub/menu.lst
-chroot $target update-grub
-
-# (hd0)   /dev/sda
-for DEV in $(ls -l /dev/disk/by-id/ | grep "${DEVICE}$" | sed -e 's/ ->.*//' -e's/.* //'); do
-    GRUB_DEV=$(grep "$DEV" /target/boot/grub/device.map | awk '{print $1}' | sed -e 's/[\(\)]//g')
-    if [ ! -z "${GRUB_DEV}" ]; then
-        grub-install --root-directory=$target "${GRUB_DEV},0" 
-        grub-install --root-directory=$target "${GRUB_DEV}" 
-    fi
-done
-
+echo -n "Installing the GRUB boot loader"
 grub-mkdevicemap --device-map=/target/boot/grub/device.map
 grub-install --root-directory=/target "(hd1)"
-grub-install --root-directory=/target "(hd1,1)"
-
 exit $error
-
