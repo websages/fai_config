@@ -23,4 +23,5 @@ EOF
 echo -n "Installing the GRUB boot loader"
 grub-mkdevicemap --device-map=/target/boot/grub/device.map
 grub-install --root-directory=/target "(hd1)"
+grub-install --root-directory=/target "(hd2)"
 exit $error
