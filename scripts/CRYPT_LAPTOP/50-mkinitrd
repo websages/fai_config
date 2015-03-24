@@ -40,6 +40,11 @@ aesni-intel
 aes-x86_64
 cryptd
 dm-log
+gf128mul
+xts
+algif_skcipher
+algif_hash
+af_alg
 EOF
 
 # Create an initrd that will actually boot
