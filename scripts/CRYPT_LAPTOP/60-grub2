@@ -1,0 +1,12 @@
+#!/bin/bash
+
+sed -i -e "s/GRUB_CMDLINE_LINUX_DEFAULT="quiet"/GRUB_CMDLINE_LINUX_DEFAULT=\"quiet hostname=${HOSTNAME}\"/" ${target}/etc/default/grub
+echo -n "Installing the GRUB boot loader"
+
+grub-mkdevicemap --device-map=/target/boot/grub/device.map
+grub-install --root-directory=/target "(hd0)"
+grub-install --root-directory=/target "(hd1)"
+grub-install --root-directory=/target "(hd2)"
+exit $error
+
+sleep 9000
