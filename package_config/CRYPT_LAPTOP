@@ -1,5 +1,5 @@
 PACKAGES aptitude
-grub-imageboot
+grub2
 fai-client
 cfengine2
 cron
