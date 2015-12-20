@@ -1,0 +1,25 @@
+#! /bin/bash
+
+error=0 ; trap "error=$((error|1))" ERR
+
+cat<<EOF > $target/etc/apt/sources.list
+deb http://ftp.us.debian.org/debian/ jessie main non-free contrib
+deb http://security.debian.org/ jessie/updates main non-free
+
+deb-src http://ftp.us.debian.org/debian/ jessie main
+
+# apt-get install e17 -t unstable
+# deb http://ftp.us.debian.org/debian/ unstable main non-free contrib
+EOF
+
+cat<<EOF > $target/etc/apt/preferences
+Package: *
+Pin: release a=jessie
+Pin-Priority: 500
+
+Package: *
+Pin: release a=unstable
+Pin-Priority: 200
+EOF
+
+exit $error

@@ -1,0 +1,12 @@
+#!/bin/bash
+
+sed -i -e "s/GRUB_CMDLINE_LINUX_DEFAULT=\"quiet\"/GRUB_CMDLINE_LINUX_DEFAULT=\"quiet hostname=${HOSTNAME}\"/" ${target}/etc/default/grub
+echo -n "Installing the GRUB boot loader"
+
+grub-mkdevicemap --device-map=/target/boot/grub/device.map
+for device in $(cat /target/boot/grub/device.map | grep -v "(fd0)" |awk '{print $1}'); do
+  echo "grub-install --root-directory=${target} \"${device}\""
+  grub-install --root-directory=${target} "${device}"
+done
+chroot ${target} grub-mkconfig -o /boot/grub/grub.cfg
+exit $error
