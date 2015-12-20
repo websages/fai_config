@@ -29,7 +29,7 @@ case $HOSTNAME in
     pascal)
 	echo "CRYPT_SERVER" ;;
     *)
-	echo "POTATO DHCPC" ;;
+	echo "CRYPT_SERVER" ;;
 esac
 
 (ifclass I386 || ifclass AMD64) && echo GRUB
