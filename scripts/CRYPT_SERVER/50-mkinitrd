@@ -1,0 +1,56 @@
+#! /bin/bash
+
+error=0 ; trap "error=$((error|1))" ERR
+
+# Copy our customized hook and script and "patch" the nfsroot
+rsync -avzP /var/lib/fai/config/files/etc/initramfs-tools/ /etc/initramfs-tools/
+
+# Copy our customized hook and script and "patch" the target so subsequent runs will work...
+rsync -avzP /var/lib/fai/config/files/etc/initramfs-tools/ $target/etc/initramfs-tools/
+
+# copy important files back to nfsroot so we can run mkinitramfs
+cp $target/etc/fstab /etc/fstab
+
+[ ! -d "$target/boot/$(hostname -s)" ] && mkdir "$target/boot/$(hostname -s)"
+[ ! -d "$target/boot/" ] && mkdir "/boot/$(hostname -s)"
+
+if [ -b /dev/mmcblk0p1 ]; then
+    mount /dev/mmcblk0p1 /mnt
+    cp /mnt/$(hostname)/crypttab $target/boot/$(hostname -s)
+    cp /mnt/$(hostname)/crypt_dev_sda2 $target/boot/$(hostname -s)
+
+    cp /mnt/$(hostname)/crypttab /boot/$(hostname -s)
+    cp /mnt/$(hostname)/crypt_dev_sda2 /boot/$(hostname -s)
+    umount /mnt
+fi
+
+/bin/cp /etc/initramfs-tools/modules /etc/initramfs-tools/modules.bak
+/bin/cat<<EOF >>/etc/initramfs-tools/modules
+aes-i586
+dm-mod
+dm-crypt
+sha256-generic
+xor
+algif_skcipher
+algif_hash
+af_alg
+crc16
+crc32_pclmul
+aesni-intel
+aes-x86_64
+cryptd
+dm-log
+gf128mul
+xts
+algif_skcipher
+algif_hash
+af_alg
+EOF
+
+# Create an initrd that will actually boot
+TARGETVERSION=$(/bin/ls $target/lib/modules)
+export LANGUAGE=C
+export LC_ALL=C
+mkinitramfs -r $target -o $target/boot/initrd.img-${TARGETVERSION} ${TARGETVERSION}
+
+exit $error
