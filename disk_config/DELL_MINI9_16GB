@@ -1,0 +1,23 @@
+# example of new config file for setup-storage
+#
+# <type> <mountpoint> <size>   <fs type> <mount options> <misc options>
+#
+# You will need to edit: to match this! (or change ../scripts/SECURE/50-mkinitrd
+# to write them to /etc/initramfs-tools/... before creating the initrd
+# or you system won't boot.
+#
+#
+# ../files/etc/initramfs-tools/hooks/lvm_on_crypt 
+# ../files/etc/initramfs-tools/scripts/local-top/lvm_on_crypt 
+#
+# disk_config /dev/sda bootable:1
+# primary /boot     250   ext3   defaults
+# primary -:encrypt       4096-  -      -
+
+# disk_config cryptsetup
+# luks   -   /dev/sda2        -  -
+
+disk_config lvm fstabkey:uuid
+vg    vg0     crypt_dev_sda2
+vg0-swap     swap 2048 swap sw
+vg0-root     / 4096 ext3 rw,errors=remount-ro
