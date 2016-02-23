@@ -1,0 +1,3 @@
+disk_config /dev/sda bootable:1
+primary /     512-   ext3   defaults
+primary swap  2048
