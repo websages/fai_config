@@ -1,0 +1,5 @@
+#!/bin/bash
+error=0 ; trap "error=$((error|1))" ERR
+/usr/sbin/grub-install --root-directory=/target /dev/sda
+chroot /target /usr/sbin/update-grub
+exit $error

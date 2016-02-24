@@ -23,7 +23,7 @@ case $HOSTNAME in
     black)
 	echo "FAIBASE DHCPC" ;;
     pink|mars)
-	echo "WHEEZY DELL_MINI9_16GB" ;;
+	echo "WHEEZY GRUB_LEGACY DELL_MINI9_16GB" ;;
     eir|oppenheimer|planck|einstein|pascal)
 	echo "CRYPT_SERVER CRYPT_SERVER_60G" ;;
     octoprint|euler)
