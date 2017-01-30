@@ -7,7 +7,7 @@ prereqs(){
     echo "$PREREQ"
 }
 
-if [ -x /scripts/functions ]; then
+if [ -f /scripts/functions ]; then
   . /scripts/functions
 else
   . /usr/share/initramfs-tools/scripts/functions
