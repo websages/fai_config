@@ -7,7 +7,11 @@ prereqs(){
     echo "$PREREQ"
 }
 
-. /usr/share/initramfs-tools/scripts/functions
+if [ -x /scripts/functions ]; then
+  . /scripts/functions
+else
+  . /usr/share/initramfs-tools/scripts/functions
+fi
 
 case $1 in
     prereqs)
@@ -30,7 +34,7 @@ fi
 if [ ! -z "${CRYPTDEV}" ];then
     modprobe ext2
     if [ ! -d /mnt/boot/ ]; then mkdir -p /mnt/boot/ ;fi
-    mount "${CRYPTDEV}" /mnt/boot
+    mount -t ext3 "${CRYPTDEV}" /mnt/boot
     export HOSTNAME=$(cat /proc/cmdline|sed -e's/.*hostname=//' -e's/ .*//')
     hostname "${HOSTNAME}"
     if [ -f /mnt/boot/${HOSTNAME}/crypttab ]; then
