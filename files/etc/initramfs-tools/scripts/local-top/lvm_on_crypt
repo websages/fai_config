@@ -2,6 +2,11 @@
 # Example boot script
 
 PREREQ="mdadm"
+
+# BUSYBOX=y doesn't work in initramfs.conf
+[ ! -d /usr ] && mkdir /usr
+[ ! -d /usr/bin/ ] && mkdir /usr/bin
+[ ! -d /usr/sbin ] && mkdir /usr/sbin
 [ -z /bin/busybox ] && /bin/busybox --install -s
 
 prereqs(){
