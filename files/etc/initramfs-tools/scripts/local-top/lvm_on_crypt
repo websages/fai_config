@@ -7,7 +7,7 @@ prereqs(){
     echo "$PREREQ"
 }
 
-. /scripts/functions
+. /usr/share/initramfs-tools/scripts/functions
 
 case $1 in
     prereqs)
