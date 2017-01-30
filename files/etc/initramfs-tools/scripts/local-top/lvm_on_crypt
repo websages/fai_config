@@ -2,6 +2,7 @@
 # Example boot script
 
 PREREQ="mdadm"
+[ -z /bin/busybox ] && /bin/busybox --install -s
 
 prereqs(){
     echo "$PREREQ"
