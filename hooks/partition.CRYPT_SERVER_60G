@@ -50,9 +50,8 @@ if [ ! -z "${KEY_DEVICE}" ]; then
 
         # Logical Volumes
         /sbin/lvcreate -n swap    -L  4G vg0
-        /sbin/lvcreate -n root    -L  2G vg0
+        /sbin/lvcreate -n root    -L 18G vg0
         /sbin/lvcreate -n tmp     -L  6G vg0
-        /sbin/lvcreate -n usr     -L 12G vg0
         /sbin/lvcreate -n var     -L  6G vg0
         /sbin/lvcreate -n opt     -L 10G vg0
         remainder=$(/sbin/vgdisplay vg0 | grep "Free *PE" | sed -e's/.*Size *//' -e 's/ .*//')
@@ -63,7 +62,6 @@ if [ ! -z "${KEY_DEVICE}" ]; then
         /sbin/mke2fs -j /dev/mapper/vg0-root
         /sbin/mke2fs -j /dev/mapper/vg0-opt
         /sbin/mke2fs -j /dev/mapper/vg0-tmp
-        /sbin/mke2fs -j /dev/mapper/vg0-usr
         /sbin/mke2fs -j /dev/mapper/vg0-var
 
         # Mount Points
@@ -74,7 +72,6 @@ if [ ! -z "${KEY_DEVICE}" ]; then
         /bin/mkdir -p /target/boot
         /bin/mkdir -p /target/opt
         /bin/mkdir -p /target/tmp
-        /bin/mkdir -p /target/usr
         /bin/mkdir -p /target/var
         /bin/umount /target
 
@@ -83,7 +80,6 @@ if [ ! -z "${KEY_DEVICE}" ]; then
 #        /bin/mount /dev/sda1               /target/boot
 #        /bin/mount /dev/mapper/vg0-opt     /target/opt
 #        /bin/mount /dev/mapper/vg0-tmp     /target/tmp
-#        /bin/mount /dev/mapper/vg0-usr     /target/usr
 #        /bin/mount /dev/mapper/vg0-var     /target/var
 
         # File System Table (fstab)
@@ -92,7 +88,6 @@ if [ ! -z "${KEY_DEVICE}" ]; then
         echo "/dev/vg0/swap    none     swap        sw                         0        0" >> /tmp/fai/fstab
         echo "/dev/vg0/opt     /opt     ext3        rw                         0        2" >> /tmp/fai/fstab
         echo "/dev/vg0/tmp     /tmp     ext3        rw                         0        2" >> /tmp/fai/fstab
-        echo "/dev/vg0/usr     /usr     ext3        rw                         0        2" >> /tmp/fai/fstab
         echo "/dev/vg0/var     /var     ext3        rw                         0        2" >> /tmp/fai/fstab
         echo "/dev/sr0         /media/cdrom0        udf,iso9660 ro,user,noauto 0        0" >> /tmp/fai/fstab
     fi

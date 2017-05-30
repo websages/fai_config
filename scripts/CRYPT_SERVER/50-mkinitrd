@@ -25,6 +25,7 @@ if [ -b /dev/mmcblk0p1 ]; then
 fi
 
 /bin/cp /etc/initramfs-tools/modules /etc/initramfs-tools/modules.bak
+/bin/cp $target/etc/initramfs-tools/modules $target/etc/initramfs-tools/modules.bak
 /bin/cat<<EOF >>/etc/initramfs-tools/modules
 aes-i586
 dm-mod
@@ -46,6 +47,7 @@ algif_skcipher
 algif_hash
 af_alg
 EOF
+cp /etc/initramfs-tools/modules $target/etc/initramfs-tools/modules
 
 # Create an initrd that will actually boot
 TARGETVERSION=$(/bin/ls $target/lib/modules)

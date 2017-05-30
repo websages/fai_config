@@ -28,4 +28,8 @@ done
   ln -s libgcrypt.so.20.0.2    libgcrypt.so.20
   ln -s libgpg-error.so.0.13.0 libgpg-error.so.0
 )
+
+# BUSYBOX=y in the initramfs.conf doesn't work
+cp /var/lib/fai/config/files/bin/busybox ${DESTDIR}/bin
+
 exit 0

@@ -2,7 +2,7 @@ PACKAGES aptitude
 grub-imageboot
 grub2
 fai-client
-cfengine2
+cfengine3
 cron
 cryptsetup
 debconf-utils
@@ -47,3 +47,5 @@ libnss-ldap
 #-- To be able to do anything
 git
 build-essential
+#-- mkinitramfs silently doesn't install busybox without this
+busybox

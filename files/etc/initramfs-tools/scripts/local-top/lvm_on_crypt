@@ -3,11 +3,21 @@
 
 PREREQ="mdadm"
 
+# BUSYBOX=y doesn't work in initramfs.conf
+[ ! -d /usr ] && mkdir /usr
+[ ! -d /usr/bin/ ] && mkdir /usr/bin
+[ ! -d /usr/sbin ] && mkdir /usr/sbin
+[ -z /bin/busybox ] && /bin/busybox --install -s
+
 prereqs(){
     echo "$PREREQ"
 }
 
-. /scripts/functions
+if [ -f /scripts/functions ]; then
+  . /scripts/functions
+else
+  . /usr/share/initramfs-tools/scripts/functions
+fi
 
 case $1 in
     prereqs)
@@ -28,11 +38,14 @@ else
 fi
 
 if [ ! -z "${CRYPTDEV}" ];then
+
     modprobe ext2
     if [ ! -d /mnt/boot/ ]; then mkdir -p /mnt/boot/ ;fi
-    mount "${CRYPTDEV}" /mnt/boot
+    mount -t ext3 "${CRYPTDEV}" /mnt/boot
+
     export HOSTNAME=$(cat /proc/cmdline|sed -e's/.*hostname=//' -e's/ .*//')
     hostname "${HOSTNAME}"
+
     if [ -f /mnt/boot/${HOSTNAME}/crypttab ]; then
         echo "using  ${CRYPTDEV}"
         /bin/cat /mnt/boot/$(hostname)/crypttab | \
@@ -50,9 +63,11 @@ if [ ! -b /dev/mapper/crypt_dev_sda2 ]; then
     if [ -f /boot/${HOSTNAME}/crypttab ]; then
         echo "using  /boot"
         # start all crypto volumes in /boot/crypttab
-        /bin/cat /boot/${HOSTNAME}/crypttab | awk '{print "cryptsetup --key-file "$3" luksOpen "$2" "$1}'| while read READY_DEVICE ; do
-            ${READY_DEVICE}
-        done
+        /bin/cat /boot/${HOSTNAME}/crypttab | \
+          awk '{print "cryptsetup --key-file "$3" luksOpen "$2" "$1}'| \
+            while read READY_DEVICE ; do
+              ${READY_DEVICE}
+            done
     fi
 fi
 
