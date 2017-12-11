@@ -59,10 +59,10 @@ if [ ! -z "${KEY_DEVICE}" ]; then
 
         # File Systems
         /sbin/mkswap /dev/mapper/vg0-swap
-        /sbin/mke2fs -j /dev/mapper/vg0-root
-        /sbin/mke2fs -j /dev/mapper/vg0-opt
-        /sbin/mke2fs -j /dev/mapper/vg0-tmp
-        /sbin/mke2fs -j /dev/mapper/vg0-var
+        /sbin/mkfs.ext4 /dev/mapper/vg0-root
+        /sbin/mkfs.ext4 /dev/mapper/vg0-opt
+        /sbin/mkfs.ext4 /dev/mapper/vg0-tmp
+        /sbin/mkfs.ext4 /dev/mapper/vg0-var
 
         # Mount Points
         echo "Mounting vg0-root on /target"
