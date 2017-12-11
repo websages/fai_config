@@ -28,6 +28,8 @@ case $HOSTNAME in
 	echo "CRYPT_SERVER CRYPT_SERVER_60G" ;;
     octoprint|euler)
 	echo "CRYPT_SERVER CRYPT_SERVER_20G" ;;
+    curie)
+	echo "STRETCH" ;;
     *)
 	echo "CRYPT_SERVER" ;;
 esac
