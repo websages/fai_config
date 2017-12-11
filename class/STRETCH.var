@@ -1,3 +1,4 @@
+FAI_DEBOOTSTRAP="stretch http://httpredir.debian.org/debian"
 # default values for installation. You can override them in your *.var files
 
 # allow installation of packages from unsigned repositories
