@@ -1,6 +1,7 @@
 PACKAGES aptitude
 grub-imageboot
 grub2
+grub2-common
 fai-client
 cfengine3
 cron
