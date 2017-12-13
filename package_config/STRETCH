@@ -1,3 +1,3 @@
 PACKAGES aptitude STRETCH
-grub-imageboot grub2 grub2-common fai-client cfengine3 cron cryptsetup debconf-utils discover file hdparm jove less linuxlogo lvm2 nfs-common nscd rdate rsync rsh-client openssh-client openssh-server openssl strace tcsh time procinfo exim4 eject locales console-common console-setup pciutils usbutils sudo ntpdate ntp
+grub-imageboot grub2 grub2-common fai-client cfengine3 cron cryptsetup debconf-utils discover file hdparm jove less linuxlogo lvm2 nfs-common nscd rdate rsync rsh-client ssh openssl strace tcsh time procinfo exim4 eject locales console-common console-setup pciutils usbutils sudo ntpdate ntp
 apt-file autodir tmux unzip slapd shelldap rdesktop libpam-ldap libnss-ldap git build-essential busybox
