@@ -34,4 +34,6 @@ dracut --force -M /target/boot/initramfs-$(uname -r).img $(uname -r)
 
 # lsinitrd /target/boot/initramfs-$(uname -r).img | egrep "(crypttab|crypt_dev|setup)"
 
+rm ${target}/etc/crypttab
+
 exit $error
