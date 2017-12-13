@@ -1,6 +1,7 @@
 #!/bin/bash
 error=0 ; trap "error=$((error|1))" ERR
 
-rsync -avP /lib/modules/$(uname -r) ${target}/lib/modules/$(uname -r)
+[ ! -d ${target}/lib/modules/$(uname -r) ] && mkdir -p ${target}/lib/modules/$(uname -r)
+rsync -avP /lib/modules/$(uname -r)/ ${target}/lib/modules/$(uname -r)/
 
 exit $error
