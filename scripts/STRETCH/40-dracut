@@ -28,7 +28,7 @@ grep -q install_items     /etc/dracut.conf || echo "install_items+=\"/boot/crypt
 cp /boot/{System.map,config,vmlinuz}-$(uname -r) /target/boot
 cp /tmp/fai/crypt_dev_sda2 /boot
 cp /tmp/fai/crypt_dev_sda2 /target/boot
-sed -e 's/\/tmp\/fai/\/boot/' /target/etc/crypttab > /etc/crypttab
+# sed -e 's/\/tmp\/fai/\/boot/' /target/etc/crypttab > /etc/crypttab
 
 dracut --force -M /target/boot/initramfs-$(uname -r).img $(uname -r)
 
