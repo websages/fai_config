@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 error=0 ; trap "error=$((error|1))" ERR
 
 # prep the nfsroot grub?
