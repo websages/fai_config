@@ -1,14 +1,14 @@
-#!/bin/bash -x
+#!/bin/bash
 error=0 ; trap "error=$((error|1))" ERR
 
 # prep the nfsroot grub?
-grep -q GRUB_CMDLINE_LINUX     /etc/default/grub || echo "GRUB_CMDLINE_LINUX=\"cryptdevice=/dev/sda2:lvm\""       >> /etc/default/grub
-grep -q GRUB_CRYPTODISK_ENABLE /etc/default/grub || echo "GRUB_CRYPTODISK_ENABLE=y  # This option worked on void" >> /etc/default/grub
-grep -q GRUB_ENABLE_CRYPTODISK /etc/default/grub || echo "GRUB_ENABLE_CRYPTODISK=y  # This one worked on Arch. It is safe to include both just in case " >> /etc/default/grub
+# grep -q GRUB_CMDLINE_LINUX     /etc/default/grub || echo "GRUB_CMDLINE_LINUX=\"cryptdevice=/dev/sda2:lvm\""       >> /etc/default/grub
+# grep -q GRUB_CRYPTODISK_ENABLE /etc/default/grub || echo "GRUB_CRYPTODISK_ENABLE=y  # This option worked on void" >> /etc/default/grub
+# grep -q GRUB_ENABLE_CRYPTODISK /etc/default/grub || echo "GRUB_ENABLE_CRYPTODISK=y  # This one worked on Arch. It is safe to include both just in case " >> /etc/default/grub
 
 # install grub
-grub-install --root-directory=/target /dev/sda
-# chroot /target /usr/sbin/update-grub
-chroot /target grub-mkconfig -o /boot/grub/grub.cfg
+grub-install --root-directory=${target} /dev/sda
+chroot ${target} /usr/sbin/update-grub
+# chroot ${target} grub-mkconfig -o /boot/grub/grub.cfg
 
 exit $error
