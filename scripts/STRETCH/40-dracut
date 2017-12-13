@@ -23,7 +23,7 @@ filesystems="nfs lockd ext4"
 EOF
 
 grep -q add_dracutmodules /etc/dracut.conf || echo "add_dracutmodules+=\"lvm crypt\"" >> /etc/dracut.conf.d/10-crypt.conf
-grep -q install_items     /etc/dracut.conf || echo "install_items+=\"/etc/crypttab /boot/crypt_dev_sda2 /boot/setup\"" >> /etc/dracut.conf.d/10-crypt.conf
+grep -q install_items     /etc/dracut.conf || echo "install_items+=\"/boot/crypt_dev_sda2 /boot/setup\"" >> /etc/dracut.conf.d/10-crypt.conf
 
 cp /boot/{System.map,config,vmlinuz}-$(uname -r) /target/boot
 cp /tmp/fai/crypt_dev_sda2 /boot
