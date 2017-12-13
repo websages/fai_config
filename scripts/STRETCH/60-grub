@@ -6,7 +6,7 @@ chroot ${target} /usr/bin/env DEBIAN_FRONTEND=noninteractive /usr/bin/apt-get -y
 
 # tell grub about our crypt device
 # GRUB_CMDLINE_LINUX="rd.luks.uuid=<UUID of /dev/sda2>"
-cmdline_linux=$(grep GRUB_CMDLINE_LINUX ${target}/etc/default/grub | sed -e 's/^[^"]*"//' -e 's/"[^"]*//g' )
+cmdline_linux=$(grep GRUB_CMDLINE_LINUX= ${target}/etc/default/grub | sed -e 's/^[^"]*"//' -e 's/"[^"]*//g' )
 disk_uuid=$(blkid /dev/sda2 -o export | grep "^UUID" | sed -e 's/UUID=//')
 
 echo "${cmdline_linux}" | grep -q "${disk_uuid}"
