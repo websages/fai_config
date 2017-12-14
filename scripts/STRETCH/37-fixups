@@ -51,10 +51,10 @@ chmod 640 $target/home/opt/.ssh/authorized_keys
 # should these be libpam-ldapd libnss-ldapd now?
 chroot ${target} /usr/bin/env DEBIAN_FRONTEND=noninteractive /usr/bin/apt-get -y -o DPkg::options::='--force-confdef' -o DPkg::options::='--force-confold' install libpam-ldap libnss-ldap ldap-utils sudo-ldap sssd-ldap
 
-# /bin/mkdir -p $target/etc/ldap/ssl
-# /bin/cp $FAI/files/etc/ldap/ldap.conf.tpl $target/etc/ldap/ldap.conf.tpl
-# /bin/sed -e "s/~ANON_SECRET~/${ANON_SECRET}/g" $target/etc/ldap/ldap.conf.tpl > $target/etc/ldap/ldap.conf
-# /bin/cp $FAI/files/etc/ldap/ssl/domain_trustchain.pem $target/etc/ldap/ssl/domain_trustchain.pem
-# /bin/cp $FAI/files/etc/nsswitch.conf $target/etc/nsswitch.conf
-# (cd $target/etc; mv libnss-ldap.conf libnss-ldap.conf.dist; ln -s ldap/ldap.conf libnss-ldap.conf )
-# (cd $target/etc; mv pam_ldap.conf pam_ldap.conf.dist;       ln -s ldap/ldap.conf pam_ldap.conf )
+/bin/mkdir -p $target/etc/ldap/ssl
+/bin/cp $FAI/files/etc/ldap/ldap.conf.tpl $target/etc/ldap/ldap.conf.tpl
+/bin/sed -e "s/~ANON_SECRET~/${ANON_SECRET}/g" $target/etc/ldap/ldap.conf.tpl > $target/etc/ldap/ldap.conf
+/bin/cp $FAI/files/etc/ldap/ssl/domain_trustchain.pem $target/etc/ldap/ssl/domain_trustchain.pem
+/bin/cp $FAI/files/etc/nsswitch.conf $target/etc/nsswitch.conf
+(cd $target/etc; mv libnss-ldap.conf libnss-ldap.conf.dist; ln -s ldap/ldap.conf libnss-ldap.conf )
+(cd $target/etc; mv pam_ldap.conf pam_ldap.conf.dist;       ln -s ldap/ldap.conf pam_ldap.conf )
