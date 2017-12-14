@@ -1,4 +1,8 @@
 #!/bin/bash
+
+# should these be libpam-ldapd libnss-ldapd now?
+chroot ${target} /usr/bin/env DEBIAN_FRONTEND=noninteractive /usr/bin/apt-get -y -o DPkg::options::='--force-confdef' -o DPkg::options::='--force-confold' install libpam-ldap libnss-ldap ldap-utils sudo-ldap sssd-ldap autodir
+
 /bin/cp $target/etc/default/autodir $target/etc/default/autodir.dist
 /bin/cat<<EOF > $target/etc/default/autodir
 RUN_AUTOHOME="yes"
@@ -48,8 +52,6 @@ chmod 640 $target/home/opt/.ssh/authorized_keys
 # get rid of fat gnome title bars
 # sed -i "/title_vertical_pad/s/value=\"[0-9]\{1,2\}\"/value=\"0\"/g" /usr/share/themes/Adwaita/metacity-1/metacity-theme-3.xml
 
-# should these be libpam-ldapd libnss-ldapd now?
-chroot ${target} /usr/bin/env DEBIAN_FRONTEND=noninteractive /usr/bin/apt-get -y -o DPkg::options::='--force-confdef' -o DPkg::options::='--force-confold' install libpam-ldap libnss-ldap ldap-utils sudo-ldap sssd-ldap
 
 /bin/mkdir -p $target/etc/ldap/ssl
 /bin/cp $FAI/files/etc/ldap/ldap.conf.tpl $target/etc/ldap/ldap.conf.tpl
