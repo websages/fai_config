@@ -30,6 +30,48 @@ cp /tmp/fai/crypt_dev_sda2 /boot
 cp /tmp/fai/crypt_dev_sda2 /target/boot
 # sed -e 's/\/tmp\/fai/\/boot/' /target/etc/crypttab > /etc/crypttab
 
+
+[ ! -d /usr/lib/dracut/modules.d/91local ] && mkdir -p /usr/lib/dracut/modules.d/91local
+cat<<EOF > /usr/lib/dracut/modules.d/91local/module-setup.sh
+#!/bin/bash
+# -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
+# ex: ts=8 sw=4 sts=4 et filetype=sh
+check() {
+return 0
+}
+
+depends() {
+return 0
+}
+
+install() {
+inst_hook pre-trigger 91 "\$moddir/mount-local.sh"
+}
+EOF
+
+cat<<EOF > /usr/lib/dracut/modules.d/91local/mount-local.sh
+#!/bin/sh
+# -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
+# ex: ts=8 sw=4 sts=4 et filetype=sh
+mount_local()
+{
+cryptsetup --key-file=/boot/crypt_dev_sda2  luksOpen /dev/sda2 cryptoroot
+lvm pvscan
+lvm vgscan
+lvm lvscan
+lvm vgchange -ay
+mount /dev/mapper/vg0-root /sysroot
+mount /dev/mapper/vg0-home /sysroot/home
+mount /dev/mapper/vg0-opt /sysroot/opt
+mount /dev/mapper/vg0-tmp /sysroot/tmp
+mount /dev/mapper/vg0-usr /sysroot/usr
+mount /dev/mapper/vg0-var /sysroot/var
+}
+
+mount_local
+EOF
+chmod 755 /usr/lib/dracut/modules.d/91local/*.sh
+
 dracut --force -M /target/boot/initramfs-$(uname -r).img $(uname -r)
 
 # lsinitrd /target/boot/initramfs-$(uname -r).img | egrep "(crypttab|crypt_dev|setup)"
