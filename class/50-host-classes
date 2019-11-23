@@ -31,7 +31,7 @@ case $HOSTNAME in
     curie.hq.thebikeshed.io|curie)
 	echo "STRETCH" ;;
     *)
-	echo "CRYPT_SERVER" ;;
+	echo "CRYPT_SERVER BUSTER" ;;
 esac
 
 (ifclass I386 || ifclass AMD64) && echo GRUB
