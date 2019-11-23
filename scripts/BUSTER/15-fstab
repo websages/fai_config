@@ -1,0 +1,19 @@
+#! /bin/bash -x
+
+error=0 ; trap "error=$((error|1))" ERR
+
+cat<< EOF > ${target}/etc/fstab
+# /etc/fstab: static file system information.
+#
+# <file sys>                                              <mount point>  <type>  <options>               <dump>  <pass>
+UUID=$(blkid -o value /dev/mapper/vg0-root|head -1)  /              ext3    rw,errors=remount-ro    0       1
+UUID=$(blkid -o value /dev/sda1           |head -1)  /boot          ext3    rw                      0       2
+UUID=$(blkid -o value /dev/mapper/vg0-home|head -1)  /home          ext3    rw                      0       2
+UUID=$(blkid -o value /dev/mapper/vg0-opt |head -1)  /opt           ext3    rw                      0       2
+UUID=$(blkid -o value /dev/mapper/vg0-tmp |head -1)  /tmp           ext3    rw                      0       2
+UUID=$(blkid -o value /dev/mapper/vg0-usr |head -1)  /usr           ext3    rw                      0       2
+UUID=$(blkid -o value /dev/mapper/vg0-var |head -1)  /var           ext3    rw                      0       2
+UUID=$(blkid -o value /dev/mapper/vg0-swap|head -1)  none           swap    sw                      0       0
+EOF
+
+exit $error

@@ -1,0 +1,10 @@
+#! /bin/bash -x
+
+error=0 ; trap "error=$((error|1))" ERR
+
+cat<< EOF > ${target}/etc/network/interfaces.d/eth0
+auto eth0
+iface eth0 inet dhcp
+EOF
+
+exit $error

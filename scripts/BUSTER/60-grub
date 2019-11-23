@@ -1,0 +1,40 @@
+#!/bin/bash
+error=0 ; trap "error=$((error|1))" ERR
+
+# install grub on the target
+chroot ${target} /usr/bin/env DEBIAN_FRONTEND=noninteractive /usr/bin/apt-get -y -o DPkg::options::='--force-confdef' -o DPkg::options::='--force-confold' install grub2 grub2-common
+
+# tell grub about our crypt device
+# GRUB_CMDLINE_LINUX="rd.luks.uuid=<UUID of /dev/sda2>"
+cmdline_linux=$(grep GRUB_CMDLINE_LINUX= ${target}/etc/default/grub | sed -e 's/^[^"]*"//' -e 's/"[^"]*//g' )
+disk_uuid=$(blkid /dev/sda2 -o export | grep "^UUID" | sed -e 's/UUID=//')
+
+inject="rd.md=0 rd.luks=0 rd.lvm=0 net.ifnames=0 biosdevname=0"
+# inject="cryptdevice=/dev/sda2:vg0" # prompts for a passphrase
+# inject="rd.auto=1" # panics the kernel
+# inject="rd.md=0 rd.luks.uuid=${disk_uuid} rd.luks.key=\/boot\/crypt_dev_sda2 rd.lvm.vg=vg0" # panics the kernel
+
+echo "${cmdline_linux}" | grep -q "${disk_uuid}"
+EXIT=$?
+if [ ${EXIT} -ne 0 ]; then
+  if [ -z "${cmdline_linux}" ]; then
+    export cmdline_linux="${inject}"
+  else
+    export cmdline_linux="${cmdline_linux} ${inject}"
+  fi
+  sed -i -e "s/GRUB_CMDLINE_LINUX=.*/GRUB_CMDLINE_LINUX=\"${cmdline_linux}\"/" ${target}/etc/default/grub
+fi
+
+grep -q GRUB_CRYPTODISK_ENABLE ${target}/etc/default/grub || echo "GRUB_CRYPTODISK_ENABLE=y  # This option worked on void" >> ${target}/etc/default/grub
+grep -q GRUB_ENABLE_CRYPTODISK ${target}/etc/default/grub || echo "GRUB_ENABLE_CRYPTODISK=y  # This one worked on Arch. It is safe to include both just in case " >> ${target}/etc/default/grub
+
+# install grub on the root device
+grub-install --root-directory=${target} /dev/sda
+
+# generate the grub.cfg
+chroot ${target} /usr/sbin/update-grub
+
+# update-grub just calls:
+# chroot ${target} grub-mkconfig -o /boot/grub/grub.cfg
+
+exit $error
