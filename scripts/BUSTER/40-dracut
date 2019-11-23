@@ -6,16 +6,17 @@ chroot ${target} /usr/bin/env DEBIAN_FRONTEND=noninteractive /usr/bin/apt-get -y
 
 cat<<EOF >/boot/setup
 #!/bin/sh
-cryptsetup --key-file=/boot/crypt_dev_sda2  luksOpen /dev/sda2 cryptoroot
+[ ! -h /dev/mapper/crypt_dev_sda2 ] && cryptsetup --key-file=/boot/crypt_dev_sda2  luksOpen /dev/sda2 cryptoroot
 lvm pvscan
 lvm vgchange -a y vg0
 # swapon /dev/mapper/vg0-swap
-mount /dev/mapper/vg0-root /sysroot
-mount /dev/mapper/vg0-home /sysroot/home
-mount /dev/mapper/vg0-opt /sysroot/opt
-mount /dev/mapper/vg0-tmp /sysroot/tmp
-mount /dev/mapper/vg0-usr /sysroot/usr
-mount /dev/mapper/vg0-var /sysroot/var
+mount | grep systroot || mount /dev/mapper/vg0-root /sysroot
+mount | grep home     || mount /dev/mapper/vg0-home /sysroot/home
+mount | grep opt      || mount /dev/mapper/vg0-opt /sysroot/opt
+mount | grep tmp      || mount /dev/mapper/vg0-tmp /sysroot/tmp
+mount | grep usr      || mount /dev/mapper/vg0-usr /sysroot/usr
+mount | grep var      || mount /dev/mapper/vg0-var /sysroot/var
+exit 0
 EOF
 chmod 755 /boot/setup
 
