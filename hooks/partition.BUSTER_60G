@@ -1,0 +1,97 @@
+#! /bin/bash
+/etc/init.d/ssh restart
+echo '################################################################################'
+echo '#                                                                              #'
+echo '#                                                                              #'
+echo '#                         hook: partitions.CRYPTWS                             #'
+echo '#                                                                              #'
+echo '#                                                                              #'
+echo '################################################################################'
+# kill the master boot record
+/bin/dd if=/dev/zero of=/dev/sda bs=512 count=1
+
+# partition the disk
+echo -e 'o\nn\np\n1\n\n+256M\nn\np\n2\n\n\n\nt\n2\n0\na\n1\nv\nw\n' | fdisk /dev/sda
+
+# format /boot
+/sbin/mke2fs -j /dev/sda1
+
+# select the key device
+fdisk -l 2>/dev/null| grep "^Disk .*:"|grep -v identifier | awk '{print $2}'|sed -e's/://' | grep "/dev/mmcblk0"
+if [ $? -eq 0 ] ; then
+    KEY_DEVICE='/dev/mmcblk0'
+    KEY_PARTITION='p1'
+else
+    KEY_DEVICE='/dev/sda'
+    KEY_PARTITION='1'
+fi
+
+# set up lvm on cryptoroot
+if [ ! -z "${KEY_DEVICE}" ]; then
+    /bin/mount ${KEY_DEVICE}${KEY_PARTITION} /mnt
+    if [ $? -eq 0 ] ; then
+        if [ ! -d "/mnt/$(hostname -s)" ]; then /bin/mkdir -p "/mnt/$(hostname -s)" ;fi
+        /bin/dd if=/dev/urandom of="/mnt/$(hostname -s)/crypt_dev_sda2" bs=1 count=256
+        chown root:root /mnt/$(hostname -s)/crypt_dev_sda2
+        chmod 400 /mnt/$(hostname -s)/crypt_dev_sda2
+        echo "YES" | cryptsetup --verbose --cipher=aes-xts-plain64:sha256 --key-size=256 luksFormat /dev/sda2 /mnt/$(hostname -s)/crypt_dev_sda2
+        cryptsetup --key-file=/mnt/$(hostname -s)/crypt_dev_sda2  luksOpen /dev/sda2 cryptoroot
+        if [ ! -h /dev/mapper/cryptoroot ];then
+            echo "the device-map did not succeed"
+            exit 1;
+        fi
+        echo "crypt_dev_sda2 /dev/sda2 /boot/$(hostname -s)/crypt_dev_sda2 luks" > /etc/crypttab
+        echo "crypt_dev_sda2 /dev/sda2 /boot/$(hostname -s)/crypt_dev_sda2 luks" > /mnt/$(hostname -s)/crypttab
+        /bin/umount /mnt
+        /sbin/pvcreate /dev/mapper/cryptoroot
+
+        # Volume Groups
+        /sbin/vgcreate vg0 /dev/mapper/cryptoroot
+
+        # Logical Volumes
+        /sbin/lvcreate -n swap    -L  4G vg0
+        /sbin/lvcreate -n root    -L 18G vg0
+        /sbin/lvcreate -n tmp     -L  6G vg0
+        /sbin/lvcreate -n var     -L  6G vg0
+        /sbin/lvcreate -n opt     -L 10G vg0
+        remainder=$(/sbin/vgdisplay vg0 | grep "Free *PE" | sed -e's/.*Size *//' -e 's/ .*//')
+        /sbin/lvextend /dev/mapper/vg0-opt -l +${remainder}
+
+        # File Systems
+        /sbin/mkswap /dev/mapper/vg0-swap
+        /sbin/mkfs.ext4 /dev/mapper/vg0-root
+        /sbin/mkfs.ext4 /dev/mapper/vg0-opt
+        /sbin/mkfs.ext4 /dev/mapper/vg0-tmp
+        /sbin/mkfs.ext4 /dev/mapper/vg0-var
+
+        # Mount Points
+        echo "Mounting vg0-root on /target"
+        /bin/mount /dev/mapper/vg0-root    /target
+        echo $?
+        echo "Creating Mount Points"
+        /bin/mkdir -p /target/boot
+        /bin/mkdir -p /target/opt
+        /bin/mkdir -p /target/tmp
+        /bin/mkdir -p /target/var
+        /bin/umount /target
+
+#        # Mounts (cont.)
+#        echo "Mounting File Systems"
+#        /bin/mount /dev/sda1               /target/boot
+#        /bin/mount /dev/mapper/vg0-opt     /target/opt
+#        /bin/mount /dev/mapper/vg0-tmp     /target/tmp
+#        /bin/mount /dev/mapper/vg0-var     /target/var
+
+        # File System Table (fstab)
+        echo "/dev/vg0/root    /        ext3        rw,errors=remount-ro       0        1" >  /tmp/fai/fstab
+        echo "/dev/sda1        /boot    ext3        rw                         0        2" >> /tmp/fai/fstab
+        echo "/dev/vg0/swap    none     swap        sw                         0        0" >> /tmp/fai/fstab
+        echo "/dev/vg0/opt     /opt     ext3        rw                         0        2" >> /tmp/fai/fstab
+        echo "/dev/vg0/tmp     /tmp     ext3        rw                         0        2" >> /tmp/fai/fstab
+        echo "/dev/vg0/var     /var     ext3        rw                         0        2" >> /tmp/fai/fstab
+        echo "/dev/sr0         /media/cdrom0        udf,iso9660 ro,user,noauto 0        0" >> /tmp/fai/fstab
+    fi
+else
+    exit -1;
+fi
+skiptask partition
