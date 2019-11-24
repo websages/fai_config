@@ -34,5 +34,5 @@ case $HOSTNAME in
 	echo "BUSTER" ;;
 esac
 
-(ifclass I386 || ifclass AMD64) && echo GRUB
+# (ifclass I386 || ifclass AMD64) && echo GRUB
 exit 0
