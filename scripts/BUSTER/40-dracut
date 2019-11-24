@@ -87,6 +87,8 @@ cp /etc/dracut.conf.d/10-crypt.conf ${target}//etc/dracut.conf.d/10-crypt.conf
 cp -p /usr/lib/dracut/modules.d/91local/*.sh ${target}/usr/lib/dracut/modules.d/91local/
 
 
+[ -f ${target}/boot/initrd.img-4.19.0-6-amd64 ] && rm ${target}/boot/initrd.img-4.19.0-6-amd64
+
 dracut --force -M ${target}/boot/initramfs-$(uname -r).img $(uname -r)
 
 # lsinitrd ${target}/boot/initramfs-$(uname -r).img | egrep "(crypttab|crypt_dev|setup)"
