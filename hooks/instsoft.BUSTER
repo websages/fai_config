@@ -1,3 +1,4 @@
 #!/bin/bash
-DEBIAN_FRONTEND=noninteractive apt-get install -y -o DPkg::options::=--force-confdef -o DPkg::options::=--force-confold aptitude
+chroot /target apt-get install -y -o DPkg::options::=--force-confdef -o DPkg::options::=--force-confold aptitude sudo
+chroot /target apt-get install -y -o DPkg::options::=--force-confdef -o DPkg::options::=--force-confold wget curl gnupg gpg-agent
 [ -s $target/etc/kernel-img.conf ] || fcopy -Bi /etc/kernel-img.conf
