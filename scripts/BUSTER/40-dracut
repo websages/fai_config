@@ -88,8 +88,7 @@ cp -p /usr/lib/dracut/modules.d/91local/*.sh ${target}/usr/lib/dracut/modules.d/
 
 
 [ -f ${target}/boot/initrd.img-4.19.0-6-amd64 ] && rm ${target}/boot/initrd.img-4.19.0-6-amd64
-
-dracut --force -M ${target}/boot/initramfs-$(uname -r).img $(uname -r)
+dracut --force -M ${target}/boot/initrd.img-$(uname -r) $(uname -r)
 
 # lsinitrd ${target}/boot/initramfs-$(uname -r).img | egrep "(crypttab|crypt_dev|setup)"
 
