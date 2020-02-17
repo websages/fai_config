@@ -1,6 +1,7 @@
 #! /bin/bash
 
 # assign classes hosts
+/etc/init.d/open-vm-tools start
 
 # use a list of classes for our demo machine
 case $HOSTNAME in
