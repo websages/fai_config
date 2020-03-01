@@ -1,5 +1,6 @@
 #!/bin/bash
 error=0 ; trap "error=$((error|1))" ERR
+[ -z "${target}" ] && target='/target'
 
 # install grub on the target
 chroot ${target} /usr/bin/env DEBIAN_FRONTEND=noninteractive /usr/bin/apt-get -y -o DPkg::options::='--force-confdef' -o DPkg::options::='--force-confold' install dracut
