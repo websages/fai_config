@@ -8,6 +8,7 @@ chroot ${target} /usr/bin/env DEBIAN_FRONTEND=noninteractive /usr/bin/apt-get -y
 
 cat<<EOF >/boot/setup
 #!/bin/sh
+[ ! -d /sysroot ] && mkdir -p /sysroot
 [ ! -h /dev/mapper/crypt_dev_sda2 ] && cryptsetup --key-file=/boot/crypt_dev_sda2  luksOpen /dev/sda2 cryptoroot
 lvm pvscan
 lvm vgchange -a y vg0
@@ -61,6 +62,7 @@ cat<<EOF > /usr/lib/dracut/modules.d/91local/mount-local.sh
 # ex: ts=8 sw=4 sts=4 et filetype=sh
 mount_local()
 {
+[ ! -d /sysroot ] && mkdir -p /sysroot
 cryptsetup --key-file=/boot/crypt_dev_sda2  luksOpen /dev/sda2 cryptoroot
 lvm pvscan
 lvm vgscan
