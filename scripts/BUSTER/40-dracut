@@ -1,5 +1,5 @@
 #!/bin/bash
-# rm -rf /target/tmp/initrd.d/; mkdir -p /target/tmp/initrd.d/ ; (cd /target/tmp/initrd.d/ ; cat /target/boot/initrd.img-4.19.0-8-amd64 | gzip -dc | cpio -idm); cd /target/tmp/initrd.d
+# rm -rf /target/tmp/initrd.d/; mkdir -p /target/tmp/initrd.d/ ; (cd /target/tmp/initrd.d/ ; cat /target/boot/initrd.img-4.19.0-8-amd64 | gzip -dc | cpio -idm); ls -l /target/tmp/initrd.d
 error=0 ; trap "error=$((error|1))" ERR
 [ -z "${target}" ] && target='/target'
 
@@ -8,12 +8,13 @@ chroot ${target} /usr/bin/env DEBIAN_FRONTEND=noninteractive /usr/bin/apt-get -y
 
 cat<<EOF >/boot/setup
 #!/bin/sh
+set -eo pipefail
 [ ! -d /sysroot ] && mkdir -p /sysroot
 [ ! -h /dev/mapper/crypt_dev_sda2 ] && cryptsetup --key-file=/boot/crypt_dev_sda2  luksOpen /dev/sda2 cryptoroot
 lvm pvscan
 lvm vgchange -a y vg0
 # swapon /dev/mapper/vg0-swap
-mount | grep sysroot || mount -t ext4 /dev/mapper/vg0-root /sysroot
+mount | grep sysroot || mount -t ext4 /dev/mapper/vg0-root /sysroot || exit 1
 mount | grep home    || mount -t ext4 /dev/mapper/vg0-home /sysroot/home
 mount | grep opt     || mount -t ext4 /dev/mapper/vg0-opt /sysroot/opt
 mount | grep tmp     || mount -t ext4 /dev/mapper/vg0-tmp /sysroot/tmp
@@ -32,11 +33,8 @@ EOF
 grep -q add_dracutmodules /etc/dracut.conf || echo "add_dracutmodules+=\"lvm crypt\"" >> /etc/dracut.conf.d/10-crypt.conf
 grep -q install_items     /etc/dracut.conf || echo "install_items+=\"/boot/crypt_dev_sda2 /boot/setup\"" >> /etc/dracut.conf.d/10-crypt.conf
 
-
 cp /boot/{System.map,config,vmlinuz}-$(uname -r) ${target}/boot
-cp /tmp/fai/crypt_dev_sda2 /boot
-cp /tmp/fai/crypt_dev_sda2 ${target}/boot
-# sed -e 's/\/tmp\/fai/\/boot/' ${target}/etc/crypttab > /etc/crypttab
+cp ${target}/boot/$(hostname -s)/crypt_dev_sda2 /boot
 
 [ ! -d /usr/lib/dracut/modules.d/91local ] && mkdir -p /usr/lib/dracut/modules.d/91local
 cat<<EOF > /usr/lib/dracut/modules.d/91local/module-setup.sh
@@ -60,9 +58,9 @@ cat<<EOF > /usr/lib/dracut/modules.d/91local/mount-local.sh
 #!/bin/sh
 # -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
 # ex: ts=8 sw=4 sts=4 et filetype=sh
+set -eo pipefail
 mount_local()
 {
-[ ! -d /sysroot ] && mkdir -p /sysroot
 cryptsetup --key-file=/boot/crypt_dev_sda2  luksOpen /dev/sda2 cryptoroot
 lvm pvscan
 lvm vgscan
