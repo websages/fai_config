@@ -1,4 +1,5 @@
 #!/bin/bash
+# rm -rf /target/tmp/initrd.d/; mkdir -p /target/tmp/initrd.d/ ; (cd /target/tmp/initrd.d/ ; cat /target/boot/initrd.img-4.19.0-8-amd64 | gzip -dc | cpio -idm); cd /target/tmp/initrd.d
 error=0 ; trap "error=$((error|1))" ERR
 [ -z "${target}" ] && target='/target'
 
@@ -11,12 +12,12 @@ cat<<EOF >/boot/setup
 lvm pvscan
 lvm vgchange -a y vg0
 # swapon /dev/mapper/vg0-swap
-mount | grep sysroot || mount /dev/mapper/vg0-root /sysroot
-mount | grep home    || mount /dev/mapper/vg0-home /sysroot/home
-mount | grep opt     || mount /dev/mapper/vg0-opt /sysroot/opt
-mount | grep tmp     || mount /dev/mapper/vg0-tmp /sysroot/tmp
-mount | grep usr     || mount /dev/mapper/vg0-usr /sysroot/usr
-mount | grep var     || mount /dev/mapper/vg0-var /sysroot/var
+mount | grep sysroot || mount -t ext4 /dev/mapper/vg0-root /sysroot
+mount | grep home    || mount -t ext4 /dev/mapper/vg0-home /sysroot/home
+mount | grep opt     || mount -t ext4 /dev/mapper/vg0-opt /sysroot/opt
+mount | grep tmp     || mount -t ext4 /dev/mapper/vg0-tmp /sysroot/tmp
+mount | grep usr     || mount -t ext4 /dev/mapper/vg0-usr /sysroot/usr
+mount | grep var     || mount -t ext4 /dev/mapper/vg0-var /sysroot/var
 exit 0
 EOF
 chmod 755 /boot/setup
@@ -65,12 +66,12 @@ lvm pvscan
 lvm vgscan
 lvm lvscan
 lvm vgchange -ay
-mount /dev/mapper/vg0-root /sysroot
-mount /dev/mapper/vg0-home /sysroot/home
-mount /dev/mapper/vg0-opt /sysroot/opt
-mount /dev/mapper/vg0-tmp /sysroot/tmp
-mount /dev/mapper/vg0-usr /sysroot/usr
-mount /dev/mapper/vg0-var /sysroot/var
+mount -t ext4 /dev/mapper/vg0-root /sysroot
+mount -t ext4 /dev/mapper/vg0-home /sysroot/home
+mount -t ext4 /dev/mapper/vg0-opt /sysroot/opt
+mount -t ext4 /dev/mapper/vg0-tmp /sysroot/tmp
+mount -t ext4 /dev/mapper/vg0-usr /sysroot/usr
+mount -t ext4 /dev/mapper/vg0-var /sysroot/var
 }
 
 mount_local
