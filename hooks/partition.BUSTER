@@ -27,6 +27,7 @@ else
 fi
 
 # set up lvm on cryptoroot
+[ ! -s "/run/cryptsetup" ] && mkdir -p /run/cryptsetup
 if [ ! -z "${KEY_DEVICE}" ]; then
     /bin/mount ${KEY_DEVICE}${KEY_PARTITION} /mnt
     if [ $? -eq 0 ] ; then
