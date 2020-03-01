@@ -27,7 +27,7 @@ else
 fi
 
 # set up lvm on cryptoroot
-[ ! -s "/run/cryptsetup" ] && mkdir -p /run/cryptsetup
+[ ! -d "/run/cryptsetup" ] && mkdir -p /run/cryptsetup
 if [ ! -z "${KEY_DEVICE}" ]; then
     /bin/mount ${KEY_DEVICE}${KEY_PARTITION} /mnt
     if [ $? -eq 0 ] ; then
@@ -35,7 +35,8 @@ if [ ! -z "${KEY_DEVICE}" ]; then
         /bin/dd if=/dev/urandom of="/mnt/$(hostname -s)/crypt_dev_sda2" bs=1 count=256
         chown root:root /mnt/$(hostname -s)/crypt_dev_sda2
         chmod 400 /mnt/$(hostname -s)/crypt_dev_sda2
-        echo "YES" | cryptsetup --verbose --cipher=aes-xts-plain64:sha256 --key-size=256 luksFormat /dev/sda2 /mnt/$(hostname -s)/crypt_dev_sda2
+        # echo "YES" | cryptsetup --verbose --cipher=aes-xts-plain64:sha256 --key-size=256 --key-file=/mnt/$(hostname -s)/crypt_dev_sda2 luksFormat /dev/sda2
+        echo "YES" | cryptsetup --verbose --key-size=256 --key-file=/mnt/$(hostname -s)/crypt_dev_sda2 luksFormat /dev/sda2
         cryptsetup --key-file=/mnt/$(hostname -s)/crypt_dev_sda2  luksOpen /dev/sda2 cryptoroot
         if [ ! -h /dev/mapper/cryptoroot ];then
             echo "the device-map did not succeed"
