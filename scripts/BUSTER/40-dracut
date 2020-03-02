@@ -16,7 +16,7 @@ hostname(){
 }
 
 [ ! -d /mnt ] && mkdir -p /mnt
-[ ! -d /mnt ] && mkdir -p /mnt
+[ ! -d /run/cryptsetup ] && mkdir -p /run/cryptsetup
 mount -t ext3 /dev/sda1 /mnt
 [ ! -h /dev/mapper/crypt_dev_sda2 ] && cryptsetup --key-file=/mnt/\$(hostname -s)/crypt_dev_sda2  luksOpen /dev/sda2 cryptoroot
 [ -f /etc/lvm/lvm.conf ] && rm /etc/lvm/lvm.conf
