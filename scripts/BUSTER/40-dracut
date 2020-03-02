@@ -6,7 +6,8 @@ error=0 ; trap "error=$((error|1))" ERR
 # install dracut on the target
 chroot ${target} /usr/bin/env DEBIAN_FRONTEND=noninteractive /usr/bin/apt-get -y -o DPkg::options::='--force-confdef' -o DPkg::options::='--force-confold' install dracut
 
-cat<<EOF >/boot/setup
+# Create a /boot/setup-storage so we can test setting up storage outside the initrd flow:
+cat<<EOF >/boot/setup-storage
 #!/bin/sh
 set -eo pipefail
 hostname(){
@@ -19,7 +20,7 @@ mount -t ext3 /dev/sda1 /mnt
 
 [ ! -d /run/cryptsetup ] && mkdir -p /run/cryptsetup
 # [ ! -h /dev/mapper/crypt_dev_sda2 ] && cryptsetup --key-file=/mnt/\$(hostname -s)/crypt_dev_sda2  luksOpen /dev/sda2 crypt_dev_sda2
-[ ! -h /dev/mapper/cryptoroot ] && cryptsetup --key-file=/mnt/plex/crypt_dev_sda2  luksOpen /dev/sda2 cryptoroot
+[ ! -h /dev/mapper/crypt_dev_sda2 ] && cryptsetup --key-file=/mnt/plex/crypt_dev_sda2  luksOpen /dev/sda2 crypt_dev_sda2
 
 [ -f /etc/lvm/lvm.conf ] && rm /etc/lvm/lvm.conf
 lvm pvscan
@@ -35,7 +36,7 @@ mount | grep var     || mount -t ext4 /dev/mapper/vg0-var /sysroot/var
 umount /mnt && mount /dev/sda1 /sysroot/boot
 exit 0
 EOF
-chmod 755 /boot/setup
+chmod 755 /boot/setup-storage
 
 cat<<EOF > /etc/dracut.conf.d/01-omit.conf
 # omit_dracutmodules+=" btrfs lvm resume usrmount mdraid shutdown dracut-systemd systemd systemd-initrd systemd-networkd systemd-initrd "
@@ -44,7 +45,7 @@ filesystems="nfs lockd ext4"
 EOF
 
 grep -q add_dracutmodules /etc/dracut.conf || echo "add_dracutmodules+=\"lvm crypt\"" >> /etc/dracut.conf.d/10-crypt.conf
-grep -q install_items     /etc/dracut.conf || echo "install_items+=\"/boot/$(hostname -s)/crypt_dev_sda2 /boot/setup\"" >> /etc/dracut.conf.d/10-crypt.conf
+grep -q install_items     /etc/dracut.conf || echo "install_items+=\"/boot/$(hostname -s)/crypt_dev_sda2 /boot/setup-storage\"" >> /etc/dracut.conf.d/10-crypt.conf
 
 cp /boot/{System.map,config,vmlinuz}-$(uname -r) ${target}/boot
 cp ${target}/boot/$(hostname -s)/crypt_dev_sda2 /boot
@@ -67,30 +68,15 @@ inst_hook initqueue/settled 91 "\$moddir/mount-local.sh"
 }
 EOF
 
+# This is the script that will be run byt the initrd we just call our manual script here.
 cat<<EOF > /usr/lib/dracut/modules.d/91local/mount-local.sh
 #!/bin/sh
 # -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
 # ex: ts=8 sw=4 sts=4 et filetype=sh
-set -eo pipefail
-mount_local()
-{
-[ ! -d /mnt ] && mkdir -p /mnt
-mount -t ext3 /dev/sda1 /mnt
-cryptsetup --key-file=/mnt/\$(hostname -s)/crypt_dev_sda2  luksOpen /dev/sda2 cryptoroot
-[ -f /etc/lvm/lvm.conf ] && rm /etc/lvm/lvm.conf
-lvm pvscan
-lvm vgscan
-lvm lvscan
-lvm vgchange -ay
-mount -t ext4 /dev/mapper/vg0-root /sysroot
-mount -t ext4 /dev/mapper/vg0-opt /sysroot/opt
-mount -t ext4 /dev/mapper/vg0-tmp /sysroot/tmp
-mount -t ext4 /dev/mapper/vg0-var /sysroot/var
-umount /mnt && mount /dev/sda1 /sysroot/boot
-}
 
-mount_local
+/boot/setup-storage
 EOF
+
 chmod 755 /usr/lib/dracut/modules.d/91local/*.sh
 
 cat<<EOF >> /etc/dracut.conf
