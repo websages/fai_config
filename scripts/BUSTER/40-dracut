@@ -3,13 +3,13 @@
 error=0 ; trap "error=$((error|1))" ERR
 [ -z "${target}" ] && target='/target'
 
-# install grub on the target
+# install dracut on the target
 chroot ${target} /usr/bin/env DEBIAN_FRONTEND=noninteractive /usr/bin/apt-get -y -o DPkg::options::='--force-confdef' -o DPkg::options::='--force-confold' install dracut
 
 cat<<EOF >/boot/setup
 #!/bin/sh
 set -eo pipefail
-[ ! -d /sysroot ] && mkdir -p /sysroot
+[ ! -d /mnt ] && mkdir -p /mnt
 mount -t ext3 /dev/sda1 /mnt
 [ ! -h /dev/mapper/crypt_dev_sda2 ] && cryptsetup --key-file=/mnt/\$(hostname -s)/crypt_dev_sda2  luksOpen /dev/sda2 cryptoroot
 lvm pvscan
@@ -63,6 +63,7 @@ cat<<EOF > /usr/lib/dracut/modules.d/91local/mount-local.sh
 set -eo pipefail
 mount_local()
 {
+[ ! -d /mnt ] && mkdir -p /mnt
 mount -t ext3 /dev/sda1 /mnt
 cryptsetup --key-file=/mnt/\$(hostname -s)/crypt_dev_sda2  luksOpen /dev/sda2 cryptoroot
 lvm pvscan
