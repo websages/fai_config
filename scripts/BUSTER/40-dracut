@@ -9,21 +9,24 @@ chroot ${target} /usr/bin/env DEBIAN_FRONTEND=noninteractive /usr/bin/apt-get -y
 cat<<EOF >/boot/setup
 #!/bin/sh
 set -eo pipefail
-dhclient eth0
-
 hostname(){
+  dhclient eth0
   grep "^new_host_name=" /tmp/dhclient.eth0.dhcpopts | sed -e 's/.*=//'
 }
 
 [ ! -d /mnt ] && mkdir -p /mnt
-[ ! -d /run/cryptsetup ] && mkdir -p /run/cryptsetup
 mount -t ext3 /dev/sda1 /mnt
-[ ! -h /dev/mapper/crypt_dev_sda2 ] && cryptsetup --key-file=/mnt/\$(hostname -s)/crypt_dev_sda2  luksOpen /dev/sda2 cryptoroot
+
+[ ! -d /run/cryptsetup ] && mkdir -p /run/cryptsetup
+# [ ! -h /dev/mapper/crypt_dev_sda2 ] && cryptsetup --key-file=/mnt/\$(hostname -s)/crypt_dev_sda2  luksOpen /dev/sda2 crypt_dev_sda2
+[ ! -h /dev/mapper/cryptoroot ] && cryptsetup --key-file=/mnt/plex/crypt_dev_sda2  luksOpen /dev/sda2 cryptoroot
+
 [ -f /etc/lvm/lvm.conf ] && rm /etc/lvm/lvm.conf
 lvm pvscan
 lvm vgscan
 lvm lvscan
 lvm vgchange -ay
+
 # swapon /dev/mapper/vg0-swap
 mount | grep sysroot || mount -t ext4 /dev/mapper/vg0-root /sysroot || exit 1
 mount | grep opt     || mount -t ext4 /dev/mapper/vg0-opt /sysroot/opt
