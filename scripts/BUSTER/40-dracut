@@ -10,7 +10,8 @@ cat<<EOF >/boot/setup
 #!/bin/sh
 set -eo pipefail
 [ ! -d /sysroot ] && mkdir -p /sysroot
-[ ! -h /dev/mapper/crypt_dev_sda2 ] && cryptsetup --key-file=/boot/crypt_dev_sda2  luksOpen /dev/sda2 cryptoroot
+mount -t ext3 /dev/sda1 /mnt
+[ ! -h /dev/mapper/crypt_dev_sda2 ] && cryptsetup --key-file=/mnt/\$(hostname -s)/crypt_dev_sda2  luksOpen /dev/sda2 cryptoroot
 lvm pvscan
 lvm vgchange -a y vg0
 # swapon /dev/mapper/vg0-swap
@@ -20,6 +21,7 @@ mount | grep opt     || mount -t ext4 /dev/mapper/vg0-opt /sysroot/opt
 mount | grep tmp     || mount -t ext4 /dev/mapper/vg0-tmp /sysroot/tmp
 mount | grep usr     || mount -t ext4 /dev/mapper/vg0-usr /sysroot/usr
 mount | grep var     || mount -t ext4 /dev/mapper/vg0-var /sysroot/var
+umount /mnt && mount /dev/sda1 /sysroot/boot
 exit 0
 EOF
 chmod 755 /boot/setup
@@ -31,7 +33,7 @@ filesystems="nfs lockd ext4"
 EOF
 
 grep -q add_dracutmodules /etc/dracut.conf || echo "add_dracutmodules+=\"lvm crypt\"" >> /etc/dracut.conf.d/10-crypt.conf
-grep -q install_items     /etc/dracut.conf || echo "install_items+=\"/boot/crypt_dev_sda2 /boot/setup\"" >> /etc/dracut.conf.d/10-crypt.conf
+grep -q install_items     /etc/dracut.conf || echo "install_items+=\"/boot/$(hostname -s)/crypt_dev_sda2 /boot/setup\"" >> /etc/dracut.conf.d/10-crypt.conf
 
 cp /boot/{System.map,config,vmlinuz}-$(uname -r) ${target}/boot
 cp ${target}/boot/$(hostname -s)/crypt_dev_sda2 /boot
@@ -61,7 +63,8 @@ cat<<EOF > /usr/lib/dracut/modules.d/91local/mount-local.sh
 set -eo pipefail
 mount_local()
 {
-cryptsetup --key-file=/boot/crypt_dev_sda2  luksOpen /dev/sda2 cryptoroot
+mount -t ext3 /dev/sda1 /mnt
+cryptsetup --key-file=/mnt/\$(hostname -s)/crypt_dev_sda2  luksOpen /dev/sda2 cryptoroot
 lvm pvscan
 lvm vgscan
 lvm lvscan
@@ -72,6 +75,7 @@ mount -t ext4 /dev/mapper/vg0-opt /sysroot/opt
 mount -t ext4 /dev/mapper/vg0-tmp /sysroot/tmp
 mount -t ext4 /dev/mapper/vg0-usr /sysroot/usr
 mount -t ext4 /dev/mapper/vg0-var /sysroot/var
+umount /mnt && mount /dev/sda1 /sysroot/boot
 }
 
 mount_local
@@ -89,7 +93,7 @@ cp /etc/dracut.conf.d/10-crypt.conf ${target}//etc/dracut.conf.d/10-crypt.conf
 cp -p /usr/lib/dracut/modules.d/91local/*.sh ${target}/usr/lib/dracut/modules.d/91local/
 
 
-[ -f ${target}/boot/initrd.img-4.19.0-6-amd64 ] && rm ${target}/boot/initrd.img-4.19.0-6-amd64
+[ -f ${target}/boot/initrd.img-$(uname -r) ] && rm ${target}/boot/initrd.img-$(uname -r)
 dracut --force -M ${target}/boot/initrd.img-$(uname -r) $(uname -r)
 
 # lsinitrd ${target}/boot/initramfs-$(uname -r).img | egrep "(crypttab|crypt_dev|setup)"
