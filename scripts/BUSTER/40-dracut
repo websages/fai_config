@@ -1,5 +1,5 @@
 #!/bin/bash
-# rm -rf /target/tmp/initrd.d/; mkdir -p /target/tmp/initrd.d/ ; (cd /target/tmp/initrd.d/ ; cat /target/boot/initrd.img-4.19.0-8-amd64 | gzip -dc | cpio -idm); ls -l /target/tmp/initrd.d
+# rm -rf /target/tmp/initrd.d/; mkdir -p /target/tmp/initrd.d/ ; (cd /target/tmp/initrd.d/ ; cat /target/boot/initrd.img-4.19.0-8-amd64 | gzip -dc | cpio -idm); ls -l /target/tmp/initrd.d; cat /target/tmp/initrd.d/boot/setup
 error=0 ; trap "error=$((error|1))" ERR
 [ -z "${target}" ] && target='/target'
 
@@ -12,14 +12,15 @@ set -eo pipefail
 [ ! -d /mnt ] && mkdir -p /mnt
 mount -t ext3 /dev/sda1 /mnt
 [ ! -h /dev/mapper/crypt_dev_sda2 ] && cryptsetup --key-file=/mnt/\$(hostname -s)/crypt_dev_sda2  luksOpen /dev/sda2 cryptoroot
+[ -f /etc/lvm/lvm.conf ] && rm /etc/lvm/lvm.conf
 lvm pvscan
-lvm vgchange -a y vg0
+lvm vgscan
+lvm lvscan
+lvm vgchange -ay
 # swapon /dev/mapper/vg0-swap
 mount | grep sysroot || mount -t ext4 /dev/mapper/vg0-root /sysroot || exit 1
-mount | grep home    || mount -t ext4 /dev/mapper/vg0-home /sysroot/home
 mount | grep opt     || mount -t ext4 /dev/mapper/vg0-opt /sysroot/opt
 mount | grep tmp     || mount -t ext4 /dev/mapper/vg0-tmp /sysroot/tmp
-mount | grep usr     || mount -t ext4 /dev/mapper/vg0-usr /sysroot/usr
 mount | grep var     || mount -t ext4 /dev/mapper/vg0-var /sysroot/var
 umount /mnt && mount /dev/sda1 /sysroot/boot
 exit 0
@@ -66,15 +67,14 @@ mount_local()
 [ ! -d /mnt ] && mkdir -p /mnt
 mount -t ext3 /dev/sda1 /mnt
 cryptsetup --key-file=/mnt/\$(hostname -s)/crypt_dev_sda2  luksOpen /dev/sda2 cryptoroot
+[ -f /etc/lvm/lvm.conf ] && rm /etc/lvm/lvm.conf
 lvm pvscan
 lvm vgscan
 lvm lvscan
 lvm vgchange -ay
 mount -t ext4 /dev/mapper/vg0-root /sysroot
-mount -t ext4 /dev/mapper/vg0-home /sysroot/home
 mount -t ext4 /dev/mapper/vg0-opt /sysroot/opt
 mount -t ext4 /dev/mapper/vg0-tmp /sysroot/tmp
-mount -t ext4 /dev/mapper/vg0-usr /sysroot/usr
 mount -t ext4 /dev/mapper/vg0-var /sysroot/var
 umount /mnt && mount /dev/sda1 /sysroot/boot
 }
