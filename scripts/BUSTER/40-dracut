@@ -9,6 +9,13 @@ chroot ${target} /usr/bin/env DEBIAN_FRONTEND=noninteractive /usr/bin/apt-get -y
 cat<<EOF >/boot/setup
 #!/bin/sh
 set -eo pipefail
+dhclient eth0
+
+hostname(){
+  grep "^new_host_name=" /tmp/dhclient.eth0.dhcpopts | sed -e 's/.*=//'
+}
+
+[ ! -d /mnt ] && mkdir -p /mnt
 [ ! -d /mnt ] && mkdir -p /mnt
 mount -t ext3 /dev/sda1 /mnt
 [ ! -h /dev/mapper/crypt_dev_sda2 ] && cryptsetup --key-file=/mnt/\$(hostname -s)/crypt_dev_sda2  luksOpen /dev/sda2 cryptoroot
