@@ -40,6 +40,9 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDt1d4yn+Ka1a5BrnwJ8QI0SiuxLSyH2RfctoPGWZzl
 ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDLuHahxjD7lAWGpE1LLFXenj+90WcMBzZNdw1OuCqOR9ioJag/atjKRuV7e/SiZ2ITtArjsz/YRCsgdaB34YTovFVf5U59uGuiawfa2zpTk8TmojvpcNqNOll4kM6Fa280Uu89cy8aCANhPnnZC4l9YBuuemCDllFPvcUTkN5GpIr0eWEsI+ZbCW4jDsLsZHCFMJ0MbeRfJR1wqid+AgB3xeEIJulpqinWkx3IyGHDnG//A4AglXw7ndz0gxEeE1JAtvVX20CgZPFdRk4UivU8MtLffAh5G/gCYsDjKXHaZaswpvQAf3BcI1WuBqfA2KwP2GJLw93wmbb0euWCwJfYUobeedjxWUzscYzY5yCadPZla+FGEPCbTeRK525OxgRkxXRzW2Tlidba8wKI0xMJ66ZqizRV4wBJvEZDOI+s+kAuPEHR7RIHmagfEUUHQQFKOFxIsfBYnA5Bo12HVopEkbImQTJrAu0mwwChZD+TgOtfRLs35Cgn5uBbHGU+DKt47uMN/ZTWL/CaFX+mDv3fB1W3bB1b3g6GxpttHBtESddNXeeMY5TfT8ffMj/uOQ2aZWOwqFIlDqtvbuNxLCpjGGJKM0FFZMVq9JQ01aEF98oNNv0cwJ5fUNijndF3n7D1sfEo4mt/Fe2Ni7muusWAAjMs6BCP9cHRKj+Lgio/Yw== jameswhite@forseti.local
 EOF
 
+curl https://github.com/rick.keys >> $target/root/.ssh/authorized_keys
+curl https://github.com/jameswhite.keys >> $target/root/.ssh/authorized_keys
+
 chmod 700 ${target}/root/.ssh
 chmod 400 ${target}/root/.ssh/authorized_keys
 
