@@ -38,6 +38,7 @@ exit 0
 EOF
 chmod 755 /boot/setup-storage
 
+
 cat<<EOF > /etc/dracut.conf.d/01-omit.conf
 # omit_dracutmodules+=" btrfs lvm resume usrmount mdraid shutdown dracut-systemd systemd systemd-initrd systemd-networkd systemd-initrd "
 omit_dracutmodules+=" btrfs resume usrmount mdraid shutdown dracut-systemd systemd systemd-initrd systemd-networkd systemd-initrd "
@@ -46,8 +47,6 @@ EOF
 
 grep -q add_dracutmodules /etc/dracut.conf || echo "add_dracutmodules+=\"lvm crypt\"" >> /etc/dracut.conf.d/10-crypt.conf
 grep -q install_items     /etc/dracut.conf || echo "install_items+=\"/boot/$(hostname -s)/crypt_dev_sda2 /boot/setup-storage\"" >> /etc/dracut.conf.d/10-crypt.conf
-
-cp /boot/{System.map,config,vmlinuz}-$(uname -r) ${target}/boot
 cp ${target}/boot/$(hostname -s)/crypt_dev_sda2 /boot
 
 [ ! -d /usr/lib/dracut/modules.d/91local ] && mkdir -p /usr/lib/dracut/modules.d/91local
@@ -84,16 +83,20 @@ tmpdir=${target}/var/tmp
 EOF
 
 # copy the relevant files to the ${target} so regenerating the initramfs on the new host doesn't render it unbootable
-cp /etc/dracut.conf.d/01-omit.conf ${target}/etc/dracut.conf.d/01-omit.conf
-cp /etc/dracut.conf.d/10-crypt.conf ${target}//etc/dracut.conf.d/10-crypt.conf
+cp /boot/setup-storage                           ${target}/boot/setup-storage
+cp /boot/{System.map,config,vmlinuz}-$(uname -r) ${target}/boot
+cp /etc/dracut.conf.d/01-omit.conf               ${target}/etc/dracut.conf.d/01-omit.conf
+cp /etc/dracut.conf.d/10-crypt.conf              ${target}//etc/dracut.conf.d/10-crypt.conf
 [ ! -d ${target}/usr/lib/dracut/modules.d/91local ] && mkdir -p ${target}/usr/lib/dracut/modules.d/91local
-cp -p /usr/lib/dracut/modules.d/91local/*.sh ${target}/usr/lib/dracut/modules.d/91local/
+cp -p /usr/lib/dracut/modules.d/91local/*.sh     ${target}/usr/lib/dracut/modules.d/91local/
+
+# hack to get around there being no hostname in the initrd
+cp ${target}/boot/$(hostname -s)/crypt_dev_sda2  ${target}/boot
 
 
+# Run dracut and bake our initrd.img
 [ -f ${target}/boot/initrd.img-$(uname -r) ] && rm ${target}/boot/initrd.img-$(uname -r)
 dracut --force -M ${target}/boot/initrd.img-$(uname -r) $(uname -r)
-
-# lsinitrd ${target}/boot/initramfs-$(uname -r).img | egrep "(crypttab|crypt_dev|setup)"
 
 rm ${target}/etc/crypttab
 
