@@ -12,15 +12,19 @@ cat<<EOF >/boot/setup-storage
 set -eo pipefail
 hostname(){
   dhclient eth0
-  grep "^new_host_name=" /tmp/dhclient.eth0.dhcpopts | sed -e 's/.*=//'
+  hostname=\$(grep "^new_host_name=" /tmp/dhclient.eth0.dhcpopts | sed -e 's/.*=//')
+  [ -z "\$(hostname)" ] && hostname='localhost'
+  echo \$hostname
 }
 
-[ ! -d /mnt ] && mkdir -p /mnt
-mount -t ext3 /dev/sda1 /mnt
+[ ! -d /boot ] && mkdir -p /boot
+mount -t ext3 /dev/sda1 /boot
 
+# Activate all of our encrypted volumes
 [ ! -d /run/cryptsetup ] && mkdir -p /run/cryptsetup
-# [ ! -h /dev/mapper/crypt_dev_sda2 ] && cryptsetup --key-file=/mnt/\$(hostname -s)/crypt_dev_sda2  luksOpen /dev/sda2 crypt_dev_sda2
-[ ! -h /dev/mapper/crypt_dev_sda2 ] && cryptsetup --key-file=/mnt/plex/crypt_dev_sda2  luksOpen /dev/sda2 crypt_dev_sda2
+cat /boot/\$(hostname -s)/crypttab | while read cryptdev blockdev keyfile; do
+  [ ! -h /dev/mapper/\${cryptdev} ] && cryptsetup --key-file=\${keyfile} luksOpen \${blockdev} \${cryptdev}
+done
 
 [ -f /etc/lvm/lvm.conf ] && rm /etc/lvm/lvm.conf
 lvm pvscan
@@ -30,10 +34,15 @@ lvm vgchange -ay
 
 # swapon /dev/mapper/vg0-swap
 mount | grep sysroot || mount -t ext4 /dev/mapper/vg0-root /sysroot || exit 1
-mount | grep opt     || mount -t ext4 /dev/mapper/vg0-opt /sysroot/opt
 mount | grep tmp     || mount -t ext4 /dev/mapper/vg0-tmp /sysroot/tmp
 mount | grep var     || mount -t ext4 /dev/mapper/vg0-var /sysroot/var
-umount /mnt && mount /dev/sda1 /sysroot/boot
+if [ -h /dev/mapper/vg_opt/opt ];then
+  mount | grep opt     || mount -t ext4 /dev/mapper/vg_opt-opt /sysroot/opt
+else
+  mount | grep opt     || mount -t ext4 /dev/mapper/vg0-opt /sysroot/opt
+fi
+
+umount /boot && mount /dev/sda1 /sysroot/boot
 exit 0
 EOF
 chmod 755 /boot/setup-storage
@@ -46,8 +55,11 @@ filesystems="nfs lockd ext4"
 EOF
 
 grep -q add_dracutmodules /etc/dracut.conf || echo "add_dracutmodules+=\"lvm crypt\"" >> /etc/dracut.conf.d/10-crypt.conf
-grep -q install_items     /etc/dracut.conf || echo "install_items+=\"/boot/$(hostname -s)/crypt_dev_sda2 /boot/setup-storage\"" >> /etc/dracut.conf.d/10-crypt.conf
-cp ${target}/boot/$(hostname -s)/crypt_dev_sda2 /boot
+grep -q install_items     /etc/dracut.conf || echo "install_items+=\"$(ls -1 /boot/plex/ | sed -e "s/^/\/boot\/$(hostname -s)\//" | tr '\n' ' ') /boot/setup-storage\"" >> /etc/dracut.conf.d/10-crypt.conf
+
+[ ! -d /boot/$(hostname -s) ] && mkdir -p /boot/$(hostname -s)
+(cd /boot; ln -s $(hostname -s) localhost)
+cp ${target}/boot/$(hostname -s)/crypt* /boot/$(hostname -s)
 
 [ ! -d /usr/lib/dracut/modules.d/91local ] && mkdir -p /usr/lib/dracut/modules.d/91local
 cat<<EOF > /usr/lib/dracut/modules.d/91local/module-setup.sh
@@ -89,9 +101,6 @@ cp /etc/dracut.conf.d/01-omit.conf               ${target}/etc/dracut.conf.d/01-
 cp /etc/dracut.conf.d/10-crypt.conf              ${target}//etc/dracut.conf.d/10-crypt.conf
 [ ! -d ${target}/usr/lib/dracut/modules.d/91local ] && mkdir -p ${target}/usr/lib/dracut/modules.d/91local
 cp -p /usr/lib/dracut/modules.d/91local/*.sh     ${target}/usr/lib/dracut/modules.d/91local/
-
-# hack to get around there being no hostname in the initrd
-cp ${target}/boot/$(hostname -s)/crypt_dev_sda2  ${target}/boot
 
 
 # Run dracut and bake our initrd.img
