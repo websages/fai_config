@@ -135,7 +135,7 @@ if [ $? -eq 0 ] ; then
       echo "${KEYFILE} ${partition} /boot/$(hostname -s)/${KEYFILE} luks" > /mnt/$(hostname -s)/crypttab
 
       # make our physical vloume and conditionally create or extend the volume group
-      /sbin/pvcreate /dev/mapper/${KEYFILE}1
+      /sbin/pvcreate /dev/mapper/${KEYFILE}
       vgdisplay | grep -q "VG Name *vg_opt" || vgcreate vg_opt "${partition}"
       vgdisplay | grep -q "VG Name *vg_opt" && vgextend vg_opt "${partition}"
     fi
