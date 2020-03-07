@@ -32,6 +32,7 @@ if [ ! -z "${KEY_DEVICE}" ]; then
     /bin/mount ${KEY_DEVICE}${KEY_PARTITION} /mnt
     if [ $? -eq 0 ] ; then
         if [ ! -d "/mnt/$(hostname -s)" ]; then /bin/mkdir -p "/mnt/$(hostname -s)" ;fi
+        (cd /mnt; ln -s $(hostname -s) localhost)
         /bin/dd if=/dev/urandom of="/mnt/$(hostname -s)/crypt_dev_sda2" bs=1 count=256
         chown root:root /mnt/$(hostname -s)/crypt_dev_sda2
         chmod 400 /mnt/$(hostname -s)/crypt_dev_sda2
