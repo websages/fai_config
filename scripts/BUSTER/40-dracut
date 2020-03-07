@@ -10,6 +10,7 @@ chroot ${target} /usr/bin/env DEBIAN_FRONTEND=noninteractive /usr/bin/apt-get -y
 cat<<EOF >/boot/setup-storage
 #!/bin/sh
 # set -eo pipefail
+exit 0
 set -x
 
 [ ! -d /boot ] && mkdir -p /boot
