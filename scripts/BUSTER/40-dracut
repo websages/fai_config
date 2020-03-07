@@ -57,7 +57,9 @@ filesystems="nfs lockd ext4"
 EOF
 
 echo "add_dracutmodules+=\"lvm crypt\"" > /etc/dracut.conf.d/10-crypt.conf
-INSTALL_ITEMS="$(ls -1 ${target}/boot/$(hostname -s)/ | sed -e "s/^.*\/boot\/$(hostname -s)\//" | tr '\n' ' ')"
+
+BOOT="$(mount | grep "/dev/sda1" | awk '{print $3}')"
+INSTALL_ITEMS="$(ls -1 ${BOOT}/$(hostname -s)/ | sed -e "s/.*\/$(hostname -s)\///" | tr '\n' ' ')"
 echo "install_items+=\"${INSTALL_ITEMS} /boot/setup-storage\"" >> /etc/dracut.conf.d/10-crypt.conf
 
 [ ! -d /boot/$(hostname -s) ] && mkdir -p /boot/$(hostname -s)
