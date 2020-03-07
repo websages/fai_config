@@ -19,7 +19,7 @@ dhcphostname(){
 
 DHCPHOST="\$(dhcphostname)"
 [ ! -d /boot ] && mkdir -p /boot
-mount -t ext3 /dev/sda1 /boot
+mount | grep "/boot" || mount -t ext3 /dev/sda1 /boot
 
 # Activate all of our encrypted volumes
 [ ! -d /run/cryptsetup ] && mkdir -p /run/cryptsetup
