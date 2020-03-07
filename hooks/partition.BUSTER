@@ -106,9 +106,9 @@ HAS_OPT=0
 /bin/mount ${KEY_DEVICE}${KEY_PARTITION} /mnt
 if [ $? -eq 0 ] ; then
   for disk in $(fdisk -l | grep "^Disk /dev/sd[bcdefghijklmnopqrstuvwxyz]" | sed -e 's/:.*//' -e s'/^.*[[:space:]]//');do
-    fdisk -l "${disk}" | grep -q "Device"
-    EXIT=$?
-    if [ ${EXIT} -ne 0 ]; then
+#    fdisk -l "${disk}" | grep -q "Device"
+#    EXIT=$?
+#    if [ ${EXIT} -ne 0 ]; then
       HAS_OPT=1
 
       # Wipe the partition table
@@ -139,7 +139,7 @@ if [ $? -eq 0 ] ; then
       yes 'y' | /sbin/pvcreate /dev/mapper/${KEYFILE}
       vgdisplay | grep -q "VG Name *vg_opt" || vgcreate vg_opt "/dev/mapper/${KEYFILE}"
       vgdisplay | grep -q "VG Name *vg_opt" && vgextend vg_opt "/dev/mapper/${KEYFILE}"
-    fi
+#    fi
   done
   /bin/umount /mnt
 fi
