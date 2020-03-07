@@ -97,15 +97,18 @@ else
     exit -1;
 fi
 
+# Force a cleanup
+# for disk in $(fdisk -l | grep "^Disk /dev/sd[bcdefghijklmnopqrstuvwxyz]" | sed -e 's/:.*//' -e s'/^.*[[:space:]]//');do
+#   /bin/dd if=/dev/zero of=${disk} bs=512 count=1
+# done
 
 # vg_opt is a combinaton of all drives that are not /dev/sda
 /bin/mount ${KEY_DEVICE}${KEY_PARTITION} /mnt
-FORCE_PARTITION=1
 if [ $? -eq 0 ] ; then
   for disk in $(fdisk -l | grep "^Disk /dev/sd[bcdefghijklmnopqrstuvwxyz]" | sed -e 's/:.*//' -e s'/^.*[[:space:]]//');do
     fdisk -l "${disk}" | grep -q "Device"
     EXIT=$?
-    if [ ${EXIT} -ne ${FORCE_PARTITION} ]; then
+    if [ ${EXIT} -ne 0 ]; then
 
       # Wipe the partition table
       /bin/dd if=/dev/zero of=${disk} bs=512 count=1
