@@ -55,7 +55,8 @@ filesystems="nfs lockd ext4"
 EOF
 
 grep -q add_dracutmodules /etc/dracut.conf || echo "add_dracutmodules+=\"lvm crypt\"" >> /etc/dracut.conf.d/10-crypt.conf
-grep -q install_items     /etc/dracut.conf || echo "install_items+=\"$(ls -1 /boot/plex/ | sed -e "s/^/\/boot\/$(hostname -s)\//" | tr '\n' ' ') /boot/setup-storage\"" >> /etc/dracut.conf.d/10-crypt.conf
+INSTALL_ITEMS="$(ls -1 /boot/plex/ | sed -e "s/^/\/boot\/$(hostname -s)\//" | tr '\n' ' ')"
+grep -q install_items     /etc/dracut.conf || echo "install_items+=\"${INSTALL_ITEMS} /boot/setup-storage\"" >> /etc/dracut.conf.d/10-crypt.conf
 
 [ ! -d /boot/$(hostname -s) ] && mkdir -p /boot/$(hostname -s)
 (cd /boot; ln -s $(hostname -s) localhost)
