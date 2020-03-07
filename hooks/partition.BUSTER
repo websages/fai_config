@@ -131,8 +131,8 @@ if [ $? -eq 0 ] ; then
       fi
 
       # Save our key and crypttab
-      echo "${KEYFILE} ${partition} /boot/$(hostname -s)/${KEYFILE} luks" > /etc/crypttab
-      echo "${KEYFILE} ${partition} /boot/$(hostname -s)/${KEYFILE} luks" > /mnt/$(hostname -s)/crypttab
+      echo "${KEYFILE} ${partition} /boot/$(hostname -s)/${KEYFILE} luks" >> /etc/crypttab
+      echo "${KEYFILE} ${partition} /boot/$(hostname -s)/${KEYFILE} luks" >> /mnt/$(hostname -s)/crypttab
 
       # make our physical vloume and conditionally create or extend the volume group
       yes 'y' | /sbin/pvcreate /dev/mapper/${KEYFILE}
