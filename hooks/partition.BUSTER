@@ -96,4 +96,32 @@ if [ ! -z "${KEY_DEVICE}" ]; then
 else
     exit -1;
 fi
+
+
+# vg_opt is a combinaton of all drives that are not /dev/sda
+/bin/mount ${KEY_DEVICE}${KEY_PARTITION} /mnt
+if [ $? -eq 0 ] ; then
+  for disk in $(fdisk -l | grep "^Disk /dev/sd[bcdefghijklmnopqrstuvwxyz]" | sed -e 's/:.*//' -e s'/^.*[[:space:]]//');do
+    fdisk -l "${disk}" | grep -q "Device" || echo -e 'n\np\n1\n\n\nt\n0\nw\n' | fdisk "${disk}"
+    KEYFILE="crypt_$(echo "${disk}" | sed -e 's/\//_/g')"
+    [ ! -f "/mnt/$(hostname -s)/${KEYFILE}" ] && /bin/dd if=/dev/urandom of="/mnt/$(hostname -s)/${KEYFILE}" bs=1 count=256
+    chown root:root /mnt/$(hostname -s)/${KEYFILE}
+    chmod 400 /mnt/$(hostname -s)/${KEYFILE}
+    echo "YES" | cryptsetup --verbose --key-size=256 --key-file=/mnt/$(hostname -s)/${KEYFILE} luksFormat ${disk}
+    cryptsetup --key-file=/mnt/$(hostname -s)/${KEYFILE}  luksOpen ${disk} ${KEYFILE}
+    if [ ! -h /dev/mapper/${KEYFILE} ];then
+        echo "the device-map did not succeed for ${disk} / ${KEYFILE}"
+    fi
+    echo "${KEYFILE} ${disk} /boot/$(hostname -s)/${KEYFILE} luks" > /etc/crypttab
+    echo "${KEYFILE} ${disk} /boot/$(hostname -s)/${KEYFILE} luks" > /mnt/$(hostname -s)/crypttab
+    /sbin/pvcreate /dev/mapper/${KEYFILE}
+    vgdisplay | grep -q "VG Name *vg_opt" || vgcreate vg_opt "${disk}"
+    vgdisplay | grep -q "VG Name *vg_opt" && vgextend vg_opt "${disk}"
+  done
+  /bin/umount /mnt
+fi
+lvcreate -n opt -l 100%FREE vg_opt
+/sbin/mkfs.ext4 /dev/mapper/vg_opt-opt
+pvmove /dev/vg0/opt /dev/vg_opt/opt
+
 skiptask partition
