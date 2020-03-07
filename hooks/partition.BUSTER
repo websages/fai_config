@@ -89,7 +89,6 @@ if [ ! -z "${KEY_DEVICE}" ]; then
         echo "/dev/sda1        /boot    ext4        rw                         0        2" >> /tmp/fai/fstab
         echo "/dev/vg0/swap    none     swap        sw                         0        0" >> /tmp/fai/fstab
         echo "/dev/vg0/opt     /opt     ext4        rw                         0        2" >> /tmp/fai/fstab
-        echo "/dev/vg_opt/opt  /opt     ext4        rw                         0        2" >> /tmp/fai/fstab
         echo "/dev/vg0/tmp     /tmp     ext4        rw                         0        2" >> /tmp/fai/fstab
         echo "/dev/vg0/var     /var     ext4        rw                         0        2" >> /tmp/fai/fstab
         echo "/dev/sr0         /media/cdrom0        udf,iso9660 ro,user,noauto 0        0" >> /tmp/fai/fstab
