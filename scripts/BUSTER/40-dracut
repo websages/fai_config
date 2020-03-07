@@ -24,7 +24,7 @@ DHCPHOST=\$(grep "^new_host_name=" /tmp/dhclient.eth0.dhcpopts | sed -e 's/.*=//
 [ -z "\${DHCPHOST}" ] && DHCPHOST='localhost'
 
 # Activate all of our encrypted volumes
-cat /boot/\${DHCPHOST}/crypttab | while read cryptdev blockdev keyfile; do
+cat /boot/\${DHCPHOST}/crypttab | while read cryptdev blockdev keyfile trash; do
   [ ! -h /dev/mapper/\${cryptdev} ] && cryptsetup --key-file=\${keyfile} luksOpen \${blockdev} \${cryptdev}
 done
 
