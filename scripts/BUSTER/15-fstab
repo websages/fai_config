@@ -17,3 +17,8 @@ UUID=$(blkid -o value /dev/mapper/vg0-swap|head -1)  none           swap    sw  
 EOF
 
 exit $error
+
+# if there is a vg_opt, use it instead 
+if [ ! -z "$(blkid -o value /dev/mapper/vg_opt-opt | head -1)" ]; then
+  sed -i'' -e "s/$(blkid -o value /dev/mapper/vg0-opt |head -1)/$(blkid -o value /dev/mapper/vg_opt-opt | head -1)/"  ${target}/etc/fstab
+fi
