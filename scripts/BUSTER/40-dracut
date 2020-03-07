@@ -9,7 +9,8 @@ chroot ${target} /usr/bin/env DEBIAN_FRONTEND=noninteractive /usr/bin/apt-get -y
 # Create a /boot/setup-storage so we can test setting up storage outside the initrd flow:
 cat<<EOF >/boot/setup-storage
 #!/bin/sh
-set -eo pipefail
+# set -eo pipefail
+set -x
 dhcphostname(){
   dhclient eth0
   THISHOST=\$(grep "^new_host_name=" /tmp/dhclient.eth0.dhcpopts | sed -e 's/.*=//')
