@@ -1,5 +1,5 @@
 #!/bin/bash
-# rm -rf /target/tmp/initrd.d/; mkdir -p /target/tmp/initrd.d/ ; (cd /target/tmp/initrd.d/ ; cat /target/boot/initrd.img-4.19.0-8-amd64 | gzip -dc | cpio -idm); ls -l /target/tmp/initrd.d; cat /target/tmp/initrd.d/boot/setup
+# rm -rf /target/tmp/initrd.d/; mkdir -p /target/tmp/initrd.d/ ; (cd /target/tmp/initrd.d/ ; cat /target/boot/initrd.img-4.19.0-8-amd64 | gzip -dc | cpio -idm); ls -l /target/tmp/initrd.d; cat /target/tmp/initrd.d/boot/setup-storage
 error=0 ; trap "error=$((error|1))" ERR
 [ -z "${target}" ] && target='/target'
 
@@ -56,9 +56,9 @@ omit_dracutmodules+=" btrfs resume usrmount mdraid shutdown dracut-systemd syste
 filesystems="nfs lockd ext4"
 EOF
 
-grep -q add_dracutmodules /etc/dracut.conf || echo "add_dracutmodules+=\"lvm crypt\"" >> /etc/dracut.conf.d/10-crypt.conf
+echo "add_dracutmodules+=\"lvm crypt\"" > /etc/dracut.conf.d/10-crypt.conf
 INSTALL_ITEMS="$(ls -1 /boot/plex/ | sed -e "s/^/\/boot\/$(hostname -s)\//" | tr '\n' ' ')"
-grep -q install_items     /etc/dracut.conf || echo "install_items+=\"${INSTALL_ITEMS} /boot/setup-storage\"" >> /etc/dracut.conf.d/10-crypt.conf
+echo "install_items+=\"${INSTALL_ITEMS} /boot/setup-storage\"" >> /etc/dracut.conf.d/10-crypt.conf
 
 [ ! -d /boot/$(hostname -s) ] && mkdir -p /boot/$(hostname -s)
 (cd /boot; ln -s $(hostname -s) localhost)
