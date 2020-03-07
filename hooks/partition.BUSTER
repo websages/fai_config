@@ -89,6 +89,7 @@ if [ ! -z "${KEY_DEVICE}" ]; then
         echo "/dev/sda1        /boot    ext4        rw                         0        2" >> /tmp/fai/fstab
         echo "/dev/vg0/swap    none     swap        sw                         0        0" >> /tmp/fai/fstab
         echo "/dev/vg0/opt     /opt     ext4        rw                         0        2" >> /tmp/fai/fstab
+        echo "/dev/vg_opt/opt  /opt     ext4        rw                         0        2" >> /tmp/fai/fstab
         echo "/dev/vg0/tmp     /tmp     ext4        rw                         0        2" >> /tmp/fai/fstab
         echo "/dev/vg0/var     /var     ext4        rw                         0        2" >> /tmp/fai/fstab
         echo "/dev/sr0         /media/cdrom0        udf,iso9660 ro,user,noauto 0        0" >> /tmp/fai/fstab
@@ -101,12 +102,14 @@ fi
 # for disk in $(fdisk -l | grep "^Disk /dev/sd[bcdefghijklmnopqrstuvwxyz]" | sed -e 's/:.*//' -e s'/^.*[[:space:]]//');do  /bin/dd if=/dev/zero of=${disk} bs=512 count=1; done
 
 # vg_opt is a combinaton of all drives that are not /dev/sda
+HAS_OPT=0
 /bin/mount ${KEY_DEVICE}${KEY_PARTITION} /mnt
 if [ $? -eq 0 ] ; then
   for disk in $(fdisk -l | grep "^Disk /dev/sd[bcdefghijklmnopqrstuvwxyz]" | sed -e 's/:.*//' -e s'/^.*[[:space:]]//');do
     fdisk -l "${disk}" | grep -q "Device"
     EXIT=$?
     if [ ${EXIT} -ne 0 ]; then
+      HAS_OPT=1
 
       # Wipe the partition table
       /bin/dd if=/dev/zero of=${disk} bs=512 count=1
@@ -146,5 +149,9 @@ lvcreate -n opt -l 100%FREE vg_opt
 
 # Format our filesystem
 /sbin/mkfs.ext4 /dev/mapper/vg_opt-opt
+
+if [ ${HAS_OPT} -eq 1 ]; then
+  sed -i'' -e 's/vg0\/opt   /vg_opt\/opt/' /tmp/fai/fstab
+fi
 
 skiptask partition
