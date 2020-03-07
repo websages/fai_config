@@ -98,9 +98,7 @@ else
 fi
 
 # Force a cleanup
-# for disk in $(fdisk -l | grep "^Disk /dev/sd[bcdefghijklmnopqrstuvwxyz]" | sed -e 's/:.*//' -e s'/^.*[[:space:]]//');do
-#   /bin/dd if=/dev/zero of=${disk} bs=512 count=1
-# done
+# for disk in $(fdisk -l | grep "^Disk /dev/sd[bcdefghijklmnopqrstuvwxyz]" | sed -e 's/:.*//' -e s'/^.*[[:space:]]//');do  /bin/dd if=/dev/zero of=${disk} bs=512 count=1; done
 
 # vg_opt is a combinaton of all drives that are not /dev/sda
 /bin/mount ${KEY_DEVICE}${KEY_PARTITION} /mnt
@@ -136,8 +134,8 @@ if [ $? -eq 0 ] ; then
 
       # make our physical vloume and conditionally create or extend the volume group
       /sbin/pvcreate /dev/mapper/${KEYFILE}
-      vgdisplay | grep -q "VG Name *vg_opt" || vgcreate vg_opt "${partition}"
-      vgdisplay | grep -q "VG Name *vg_opt" && vgextend vg_opt "${partition}"
+      vgdisplay | grep -q "VG Name *vg_opt" || vgcreate vg_opt "/dev/mapper/${KEYFILE}"
+      vgdisplay | grep -q "VG Name *vg_opt" && vgextend vg_opt "/dev/mapper/${KEYFILE}"
     fi
   done
   /bin/umount /mnt
