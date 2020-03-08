@@ -7,6 +7,9 @@ echo '#                         hook: partitions.CRYPTWS                        
 echo '#                                                                              #'
 echo '#                                                                              #'
 echo '################################################################################'
+# Do nothing if the disk is partitioned
+fdisk -l /dev/sda | grep "Device" && exit 1
+
 # kill the master boot record
 /bin/dd if=/dev/zero of=/dev/sda bs=512 count=1
 
@@ -77,13 +80,6 @@ if [ ! -z "${KEY_DEVICE}" ]; then
         /bin/mkdir -p /target/tmp
         /bin/mkdir -p /target/var
         /bin/umount /target
-
-#        # Mounts (cont.)
-#        echo "Mounting File Systems"
-#        /bin/mount /dev/sda1               /target/boot
-#        /bin/mount /dev/mapper/vg0-opt     /target/opt
-#        /bin/mount /dev/mapper/vg0-tmp     /target/tmp
-#        /bin/mount /dev/mapper/vg0-var     /target/var
 
         # File System Table (fstab)
         echo "/dev/vg0/root    /        ext4        rw,errors=remount-ro       0        1" >  /tmp/fai/fstab
