@@ -34,8 +34,7 @@ lvm pvscan && lvm vgscan && lvm lvscan && lvm vgchange -ay
 mount | grep sysroot || mount -t ext4 /dev/mapper/vg0-root /sysroot || exit 1
 mount | grep tmp     || mount -t ext4 /dev/mapper/vg0-tmp /sysroot/tmp
 mount | grep var     || mount -t ext4 /dev/mapper/vg0-var /sysroot/var
-[ -h /dev/mapper/vg_opt/opt ] && mount | grep opt || mount -t ext4 /dev/mapper/vg_opt-opt /sysroot/opt
-[ ! -h /dev/mapper/vg_opt/opt ] && mount | grep opt     || mount -t ext4 /dev/mapper/vg0-opt /sysroot/opt
+mount | grep opt     || [ -h /dev/mapper/vg_opt/opt ] && mount -t ext4 /dev/mapper/vg_opt-opt /sysroot/opt || mount -t ext4 /dev/mapper/vg0-opt /sysroot/opt
 umount /boot && mount /dev/sda1 /sysroot/boot
 
 exit 0
