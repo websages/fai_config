@@ -8,17 +8,18 @@ cat<< EOF > ${target}/etc/fstab
 # <file sys>                                              <mount point>  <type>  <options>               <dump>  <pass>
 UUID=$(blkid -o value /dev/mapper/vg0-root|head -1)  /              ext4    rw,errors=remount-ro    0       1
 UUID=$(blkid -o value /dev/sda1           |head -1)  /boot          ext4    rw                      0       2
-# UUID=$(blkid -o value /dev/mapper/vg0-home|head -1)  /home          ext4    rw                      0       2
 UUID=$(blkid -o value /dev/mapper/vg0-opt |head -1)  /opt           ext4    rw                      0       2
 UUID=$(blkid -o value /dev/mapper/vg0-tmp |head -1)  /tmp           ext4    rw                      0       2
-# UUID=$(blkid -o value /dev/mapper/vg0-usr |head -1)  /usr           ext4    rw                      0       2
 UUID=$(blkid -o value /dev/mapper/vg0-var |head -1)  /var           ext4    rw                      0       2
 UUID=$(blkid -o value /dev/mapper/vg0-swap|head -1)  none           swap    sw                      0       0
+# UUID=$(blkid -o value /dev/mapper/vg0-home|head -1)  /home          ext4    rw                      0       2
+# UUID=$(blkid -o value /dev/mapper/vg0-usr |head -1)  /usr           ext4    rw                      0       2
 EOF
 
-exit $error
 
 # if there is a vg_opt, use it instead 
 if [ ! -z "$(blkid -o value /dev/mapper/vg_opt-opt | head -1)" ]; then
   sed -i'' -e "s/$(blkid -o value /dev/mapper/vg0-opt |head -1)/$(blkid -o value /dev/mapper/vg_opt-opt | head -1)/"  ${target}/etc/fstab
 fi
+
+exit $error
