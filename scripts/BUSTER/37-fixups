@@ -2,6 +2,7 @@
 
 # should these be libpam-ldapd libnss-ldapd now?
 chroot ${target} /usr/bin/env DEBIAN_FRONTEND=noninteractive /usr/bin/apt-get -y -o DPkg::options::='--force-confdef' -o DPkg::options::='--force-confold' install libpam-ldap libnss-ldap ldap-utils sudo-ldap sssd-ldap autodir openssl
+chroot ${target} "wget -O - https://fai-project.org/download/2BF8D9FE074BCDE4.asc | sudo apt-key add -"
 
 /bin/cp $target/etc/default/autodir $target/etc/default/autodir.dist
 /bin/cat<<EOF > $target/etc/default/autodir
