@@ -11,7 +11,7 @@ echo '##########################################################################
 /bin/dd if=/dev/zero of=/dev/sda bs=512 count=1
 
 # partition the disk
-echo -e 'o\nn\np\n1\n\n+256M\nn\np\n2\n\n\n\nt\n2\n0\na\n1\nv\nw\n' | fdisk /dev/sda
+echo -e 'o\nn\np\n1\n\n+1024M\nn\np\n2\n\n\n\nt\n2\n0\na\n1\nv\nw\n' | fdisk /dev/sda
 
 # format /boot
 /sbin/mke2fs -j /dev/sda1
