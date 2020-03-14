@@ -1,6 +1,7 @@
 #! /bin/bash
 
 # assign classes hosts
+/etc/init.d/open-vm-tools start > /dev/null 2>&1
 
 # use a list of classes for our demo machine
 case $HOSTNAME in
@@ -31,8 +32,8 @@ case $HOSTNAME in
     curie.hq.thebikeshed.io|curie)
 	echo "STRETCH" ;;
     *)
-	echo "CRYPT_SERVER" ;;
+	echo "BUSTER" ;;
 esac
 
-(ifclass I386 || ifclass AMD64) && echo GRUB
+# (ifclass I386 || ifclass AMD64) && echo GRUB
 exit 0

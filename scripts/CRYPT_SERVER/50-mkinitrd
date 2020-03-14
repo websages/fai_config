@@ -55,4 +55,8 @@ export LANGUAGE=C
 export LC_ALL=C
 mkinitramfs -r $target -o $target/boot/initrd.img-${TARGETVERSION} ${TARGETVERSION}
 
+# rm /target/boot/initrd.img-
+# TMPDIR=/target/var/tmp mkinitramfs -r /target/ -o /target/boot/initrd.img-4.19.0-6-amd64 4.19.0-6-amd64
+# grub-install --boot-directory=/target/boot /dev/sda
+
 exit $error
