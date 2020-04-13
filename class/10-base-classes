@@ -1,5 +1,7 @@
 #! /bin/bash
 
+/sbin/route | /bin/grep -i "^default" || /sbin/route add default gw 10.252.0.1
+
 # Echo architecture and OS name in uppercase. Do NOT remove these two lines.
 uname -s | tr '[:lower:]' '[:upper:]'
 [ -x "`which dpkg`" ] && dpkg --print-architecture | tr a-z A-Z
