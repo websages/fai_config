@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 
 /sbin/route | /bin/grep -i "^default" || /sbin/route add default gw 10.252.0.1
 

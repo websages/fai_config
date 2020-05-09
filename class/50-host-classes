@@ -21,7 +21,7 @@ case $HOSTNAME in
 #	echo "SOEKRIS DHCPC DEMO XORG GNOME";;
     audhumla)
 	echo "SOEKRIS" ;;
-    black)
+    "black"|"black.apartment.jameswhite.org")
 	echo "DELL_MINI9_16GB DHCPC" ;;
     pink|mars)
 	echo "WHEEZY GRUB_LEGACY DELL_MINI9_16GB" ;;
