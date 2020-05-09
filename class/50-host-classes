@@ -22,7 +22,7 @@ case $HOSTNAME in
     audhumla)
 	echo "SOEKRIS" ;;
     black)
-	echo "FAIBASE DHCPC" ;;
+	echo "DELL_MINI9_16GB DHCPC" ;;
     pink|mars)
 	echo "WHEEZY GRUB_LEGACY DELL_MINI9_16GB" ;;
     eir|oppenheimer|planck|einstein|pascal|butters|clarke|wilford)
