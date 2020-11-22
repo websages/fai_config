@@ -30,7 +30,6 @@ case $HOSTNAME in
     eir)
 	echo "CRYPT_SERVER CRYPT_SERVER_60G BUSTER" ;;
     octoprint|euler)
-    octoprint|euler)
 	echo "CRYPT_SERVER CRYPT_SERVER_20G" ;;
     curie.hq.thebikeshed.io|curie)
 	echo "STRETCH" ;;
