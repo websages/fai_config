@@ -25,8 +25,11 @@ case $HOSTNAME in
 	echo "FAIBASE DHCPC" ;;
     pink|mars)
 	echo "WHEEZY GRUB_LEGACY DELL_MINI9_16GB" ;;
-    eir|oppenheimer|planck|einstein|pascal|butters|clarke|wilford)
+    oppenheimer|planck|einstein|pascal|butters|clarke|wilford)
 	echo "CRYPT_SERVER CRYPT_SERVER_60G" ;;
+    eir)
+	echo "CRYPT_SERVER CRYPT_SERVER_60G BUSTER" ;;
+    octoprint|euler)
     octoprint|euler)
 	echo "CRYPT_SERVER CRYPT_SERVER_20G" ;;
     curie.hq.thebikeshed.io|curie)
