@@ -32,6 +32,7 @@ grep -q GRUB_ENABLE_CRYPTODISK ${target}/etc/default/grub || echo "GRUB_ENABLE_C
 grub-install --root-directory=${target} /dev/sda
 
 # generate the grub.cfg
+[ ! -d ${target}/boot/images ] && mkdir -p ${target}/boot/images
 chroot ${target} /usr/sbin/update-grub
 
 # update-grub just calls:
