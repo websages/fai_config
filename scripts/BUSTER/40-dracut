@@ -1,5 +1,5 @@
 #!/bin/bash
-# rm -rf /target/tmp/initrd.d/; mkdir -p /target/tmp/initrd.d/ ; (cd /target/tmp/initrd.d/ ; cat /target/boot/initrd.img-4.19.0-8-amd64 | gzip -dc | cpio -idm); ls -l /target/tmp/initrd.d; cat /target/tmp/initrd.d/boot/setup-storage
+# [ -d /target/tmp/initrd.d/ ] && rm -rf /target/tmp/initrd.d/; mkdir -p /target/tmp/initrd.d/ ; (cd /target/tmp/initrd.d/ ; cat /target/boot/initrd.img-4.19.0-8-amd64 | gzip -dc | cpio -idm); ls -l /target/tmp/initrd.d; cat /target/tmp/initrd.d/boot/setup-storage
 error=0 ; trap "error=$((error|1))" ERR
 [ -z "${target}" ] && target='/target'
 
@@ -9,7 +9,7 @@ chroot ${target} /usr/bin/env DEBIAN_FRONTEND=noninteractive /usr/bin/apt-get -y
 # Create a /boot/setup-storage so we can test setting up storage outside the initrd flow:
 cat<<EOF >/boot/setup-storage
 #!/bin/sh
-set -eo pipefail
+set -xeo pipefail
 
 echo "bugfixes"
 [ ! -d /boot ] && mkdir -p /boot
@@ -58,9 +58,9 @@ BOOT="$(mount | grep "/dev/sda1" | awk '{print $3}')"
 INSTALL_ITEMS="$(ls -1 ${BOOT}/$(hostname -s)/ | sed -e "s/.*\/$(hostname -s)\///" | tr '\n' ' ')"
 echo "install_items+=\"${INSTALL_ITEMS} /boot/setup-storage\"" >> /etc/dracut.conf.d/10-crypt.conf
 
-[ ! -d /boot/$(hostname -s) ] && mkdir -p /boot/$(hostname -s)
-(cd /boot; ln -s $(hostname -s) localhost)
-cp ${target}/boot/$(hostname -s)/crypt* /boot/$(hostname -s)
+# make ${target}/boot/${fqdn}, link hostname -s, localhost to it, copy the encryption keys to it
+(cd ${target}/boot; mkdir $(hostname); [ "$(hostname)" != "$(hostname -s)" ] && ln -s $(hostname) $(hostname -s); ln -s $(hostname) localhost); 
+cp /tmp/fai/crypt* ${target}/boot/$(hostname)
 
 [ ! -d /usr/lib/dracut/modules.d/91local ] && mkdir -p /usr/lib/dracut/modules.d/91local
 cat<<EOF > /usr/lib/dracut/modules.d/91local/module-setup.sh
