@@ -76,13 +76,8 @@ tmpdir=${target}/var/tmp
 EOF
 
 # cp /boot/{System.map,config,vmlinuz}-$(uname -r) ${target}/boot
-# cp /etc/dracut.conf.d/10-crypt.conf              ${target}//etc/dracut.conf.d/10-crypt.conf
-# [ ! -d ${target}/usr/lib/dracut/modules.d/91local ] && mkdir -p ${target}/usr/lib/dracut/modules.d/91local
-# cp -p /usr/lib/dracut/modules.d/91local/*.sh     ${target}/usr/lib/dracut/modules.d/91local/
-#
-#
 # # Run dracut and bake our initrd.img
-# [ -f ${target}/boot/initrd.img-$(uname -r) ] && rm ${target}/boot/initrd.img-$(uname -r)
+[ -f ${target}/boot/initrd.img-$(uname -r) ] && rm ${target}/boot/initrd.img-$(uname -r)
 dracut --force -M ${target}/boot/initrd.img-$(uname -r) $(uname -r)
 
 # rm ${target}/etc/crypttab

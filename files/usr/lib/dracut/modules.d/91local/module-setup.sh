@@ -10,5 +10,5 @@ return 0
 }
 
 install() {
-inst_hook initqueue/settled 91 "\$moddir/mount-local.sh"
+inst_hook initqueue/settled 91 "$moddir/mount-local.sh"
 }
