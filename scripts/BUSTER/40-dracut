@@ -45,7 +45,7 @@ finstall(){
   done
   [ -z "${TARGET}"] && TARGET="${SOURCE}"
 
-  install -o "${OWNER}" -g "${GROUP}" -m "${MODE}" "${files}/${SOURCE}" "${target}/${TARGET}"
+  install -D -o "${OWNER}" -g "${GROUP}" -m "${MODE}" "${files}/${SOURCE}" "${target}/${TARGET}"
 }
 
 # install dracut on the target
