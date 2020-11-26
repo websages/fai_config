@@ -1,5 +1,6 @@
 #!/bin/sh
-set -xeo pipefail
+set -e
+# -o pipefail is not valid in /bin/sh
 
 echo "bugfixes"
 [ ! -d /boot ] && mkdir -p /boot
