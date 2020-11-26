@@ -54,7 +54,7 @@ finstall(){
 finstall /etc/dracut.conf.d/01-omit.conf
 finstall -m 0755 /boot/setup-storage
 finstall -m 0755 /usr/lib/dracut/modules.d/91local/mount-local.sh
-finstall -m 0755/usr/lib/dracut/modules.d/91local/module-setup.sh
+finstall -m 0755 /usr/lib/dracut/modules.d/91local/module-setup.sh
 
 # BOOT="$(mount | grep "/dev/sda1" | awk '{print $3}')"
 
