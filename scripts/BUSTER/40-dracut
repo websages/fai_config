@@ -49,7 +49,6 @@ finstall(){
   install -D -o "${OWNER}" -g "${GROUP}" -m "${MODE}" "${files}/${SOURCE}" "${target}/${TARGET}"
   set +x
 }
-exit 0
 
 # install dracut on the target
 # chroot ${target} /usr/bin/env DEBIAN_FRONTEND=noninteractive /usr/bin/apt-get -y -o DPkg::options::='--force-confdef' -o DPkg::options::='--force-confold' install dracut
@@ -64,8 +63,7 @@ INSTALL_ITEMS="$(ls -1 ${BOOT}/$(hostname -s)/ | sed -e "s/.*\/$(hostname -s)\//
 echo "install_items+=\" ${INSTALL_ITEMS} /boot/setup-storage\"" >> /etc/dracut.conf.d/10-crypt.conf
 echo "install_items+=\" ${INSTALL_ITEMS} /boot/setup-storage\"" >> ${target}/etc/dracut.conf.d/10-crypt.conf
 
-# make ${target}/boot/${fqdn}, link hostname -s, localhost to it, copy the encryption keys to it
-(cd ${target}/boot; mkdir $(hostname); [ "$(hostname)" != "$(hostname -s)" ] && ln -s $(hostname) $(hostname -s); ln -s $(hostname) localhost);
+# make ${target}/boot/${fqdn}, link hostname -s, localhost to it, copy the encryption keys to it (cd ${target}/boot; mkdir $(hostname); [ "$(hostname)" != "$(hostname -s)" ] && ln -s $(hostname) $(hostname -s); ln -s $(hostname) localhost);
 cp /tmp/fai/crypt* ${target}/boot/$(hostname)
 
 # create a dracut.conf for our initial run
