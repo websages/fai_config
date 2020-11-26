@@ -2,29 +2,73 @@
 # [ -d /target/tmp/initrd.d/ ] && rm -rf /target/tmp/initrd.d/; mkdir -p /target/tmp/initrd.d/ ; (cd /target/tmp/initrd.d/ ; cat /target/boot/initrd.img-4.19.0-8-amd64 | gzip -dc | cpio -idm); ls -l /target/tmp/initrd.d; cat /target/tmp/initrd.d/boot/setup-storage
 error=0 ; trap "error=$((error|1))" ERR
 [ -z "${target}" ] && target='/target'
+[ -z "${config}" ] && config='/var/lib/fai/config'
+files="${config}/files"
+export files target config
+
+# install a file from /var/lib/config/files/* to /target/*
+fintsall(){
+  OWNER='root'
+  GROUP='root'
+  MODE='0644'
+  unset SOURCE
+  unset TARGET
+  while [ ! -z "$*" ]; do
+    case "$1" in
+      "-m"|"--mode")
+        MODE="$1"
+        shift 1
+      ;;
+      "-o"|"--owner")
+        OWNER="$1"
+        shift 1
+      ;;
+      "-g"|"--group")
+        GROUP="$1"
+        shift 1
+      ;;
+      *)
+        if [ -z "${SOURCE}" ]; then
+          SOURCE="$1"
+          shift 1
+        else
+          if [ -z "${TARGET}" ]; then
+            TARGET="$1"
+            shift 1
+          else
+            echo "Too many options: source(${SOURCE}) -> target(${TARGET}), $1 ?"
+            exit 1
+          fi
+        fi
+      ;;
+    esac
+  done
+  [ -z "${TARGET}"] && TARGET="${SOURCE}"
+
+  install -o "${OWNER}" -g "${GROUP}" -m "${MODE}" "${files}/${SOURCE}" "${target}/${TARGET}"
+}
 
 # install dracut on the target
-chroot ${target} /usr/bin/env DEBIAN_FRONTEND=noninteractive /usr/bin/apt-get -y -o DPkg::options::='--force-confdef' -o DPkg::options::='--force-confold' install dracut
+# chroot ${target} /usr/bin/env DEBIAN_FRONTEND=noninteractive /usr/bin/apt-get -y -o DPkg::options::='--force-confdef' -o DPkg::options::='--force-confold' install dracut
 
-# copy our dracut files to ${target}/boot
-fcopy -v -i -m root,root,0755 /boot/setup-storage
-fcopy -v -i -m root,root,0755 /etc/dracut.conf.d/01-omit.conf
-fcopu -v -i -m root,root,0755 /usr/lib/dracut/modules.d/91local/mount-local.sh
-fcopy -v -i -M /usr/lib/dracut/modules.d/91local/module-setup.sh
+finstall /etc/dracut.conf.d/01-omit.conf
+finstall -m 0755 /boot/setup-storage
+finstall -m 0755 /usr/lib/dracut/modules.d/91local/mount-local.sh
+finstall -m 0755/usr/lib/dracut/modules.d/91local/module-setup.sh
 
-BOOT="$(mount | grep "/dev/sda1" | awk '{print $3}')"
+# BOOT="$(mount | grep "/dev/sda1" | awk '{print $3}')"
 
-INSTALL_ITEMS="$(ls -1 ${BOOT}/$(hostname -s)/ | sed -e "s/.*\/$(hostname -s)\///" | tr '\n' ' ')"
-echo "install_items+=\"${INSTALL_ITEMS} /boot/setup-storage\"" >> /etc/dracut.conf.d/10-crypt.conf
+# INSTALL_ITEMS="$(ls -1 ${BOOT}/$(hostname -s)/ | sed -e "s/.*\/$(hostname -s)\///" | tr '\n' ' ')"
+# echo "install_items+=\"${INSTALL_ITEMS} /boot/setup-storage\"" >> /etc/dracut.conf.d/10-crypt.conf
 
 # make ${target}/boot/${fqdn}, link hostname -s, localhost to it, copy the encryption keys to it
-(cd ${target}/boot; mkdir $(hostname); [ "$(hostname)" != "$(hostname -s)" ] && ln -s $(hostname) $(hostname -s); ln -s $(hostname) localhost);
-cp /tmp/fai/crypt* ${target}/boot/$(hostname)
+# (cd ${target}/boot; mkdir $(hostname); [ "$(hostname)" != "$(hostname -s)" ] && ln -s $(hostname) $(hostname -s); ln -s $(hostname) localhost);
+# cp /tmp/fai/crypt* ${target}/boot/$(hostname)
 
 # create a dracut.conf for our initial run
-cat<<EOF >> /etc/dracut.conf
-tmpdir=${target}/var/tmp
-EOF
+# cat<<EOF >> /etc/dracut.conf
+# tmpdir=${target}/var/tmp
+# EOF
 
 # # copy the relevant files to the ${target} so regenerating the initramfs on the new host doesn't render it unbootable
 # cp /boot/setup-storage                           ${target}/boot/setup-storage
