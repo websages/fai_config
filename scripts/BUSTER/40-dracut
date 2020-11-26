@@ -82,6 +82,7 @@ EOF
 #
 # # Run dracut and bake our initrd.img
 # [ -f ${target}/boot/initrd.img-$(uname -r) ] && rm ${target}/boot/initrd.img-$(uname -r)
+exit 0
 dracut --force -M ${target}/boot/initrd.img-$(uname -r) $(uname -r)
 
 # rm ${target}/etc/crypttab
