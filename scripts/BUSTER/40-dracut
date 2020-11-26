@@ -6,108 +6,39 @@ error=0 ; trap "error=$((error|1))" ERR
 # install dracut on the target
 chroot ${target} /usr/bin/env DEBIAN_FRONTEND=noninteractive /usr/bin/apt-get -y -o DPkg::options::='--force-confdef' -o DPkg::options::='--force-confold' install dracut
 
-# Create a /boot/setup-storage so we can test setting up storage outside the initrd flow:
-cat<<EOF >/boot/setup-storage
-#!/bin/sh
-set -xeo pipefail
-
-echo "bugfixes"
-[ ! -d /boot ] && mkdir -p /boot
-[ ! -d /run/cryptsetup ] && mkdir -p /run/cryptsetup
-[ -f /etc/lvm/lvm.conf ] && rm /etc/lvm/lvm.conf
-
-echo "getting our hostname from dhcp"
-[ ! -f /tmp/dhclient.eth0.dhcpopts ] && dhclient eth0
-DHCPHOST=\$(grep "^new_host_name=" /tmp/dhclient.eth0.dhcpopts | sed -e 's/.*=//')
-[ -z "\${DHCPHOST}" ] && DHCPHOST='localhost'
-
-echo "activating all of our encrypted volumes"
-mount | grep -q "/boot" || mount -t ext3 /dev/sda1 /boot
-cat /boot/\${DHCPHOST}/crypttab | while read cryptdev blockdev keyfile type; do
-  [ ! -h /dev/mapper/\${cryptdev} ] && cryptsetup --key-file=\${keyfile} \${type}Open \${blockdev} \${cryptdev}
-done
-
-echo "kicking LVM in the ass"
-lvm pvscan && lvm vgscan && lvm lvscan && lvm vgchange -ay
-
-echo "mounting that shit"
-set -x
-mount | grep sysroot || mount -t ext4 /dev/mapper/vg0-root /sysroot || exit 1
-mount | grep tmp     || mount -t ext4 /dev/mapper/vg0-tmp /sysroot/tmp
-mount | grep var     || mount -t ext4 /dev/mapper/vg0-var /sysroot/var
-mount | grep opt     || [ -h /dev/mapper/vg_opt-opt ] && mount -t ext4 /dev/mapper/vg_opt-opt /sysroot/opt || mount -t ext4 /dev/mapper/vg0-opt /sysroot/opt
-umount /boot         && mount /dev/sda1 /sysroot/boot
-set +x
-
-echo "finish setup-storage"
-exit 0
-EOF
-
-chmod 755 /boot/setup-storage
-
-
-cat<<EOF > /etc/dracut.conf.d/01-omit.conf
-# omit_dracutmodules+=" btrfs lvm resume usrmount mdraid shutdown dracut-systemd systemd systemd-initrd systemd-networkd systemd-initrd "
-omit_dracutmodules+=" btrfs resume usrmount mdraid shutdown dracut-systemd systemd systemd-initrd systemd-networkd systemd-initrd "
-filesystems="nfs lockd ext4"
-EOF
-
-echo "add_dracutmodules+=\"lvm crypt\"" > /etc/dracut.conf.d/10-crypt.conf
+# copy our dracut files to ${target}/boot
+fcopy -v -i -m root,root,0755 /boot/setup-storage
+fcopy -v -i -m root,root,0755 /etc/dracut.conf.d/01-omit.conf
+fcopu -v -i -m root,root,0755 /usr/lib/dracut/modules.d/91local/mount-local.sh
+fcopy -v -i -M /usr/lib/dracut/modules.d/91local/module-setup.sh
 
 BOOT="$(mount | grep "/dev/sda1" | awk '{print $3}')"
+
 INSTALL_ITEMS="$(ls -1 ${BOOT}/$(hostname -s)/ | sed -e "s/.*\/$(hostname -s)\///" | tr '\n' ' ')"
 echo "install_items+=\"${INSTALL_ITEMS} /boot/setup-storage\"" >> /etc/dracut.conf.d/10-crypt.conf
 
 # make ${target}/boot/${fqdn}, link hostname -s, localhost to it, copy the encryption keys to it
-(cd ${target}/boot; mkdir $(hostname); [ "$(hostname)" != "$(hostname -s)" ] && ln -s $(hostname) $(hostname -s); ln -s $(hostname) localhost); 
+(cd ${target}/boot; mkdir $(hostname); [ "$(hostname)" != "$(hostname -s)" ] && ln -s $(hostname) $(hostname -s); ln -s $(hostname) localhost);
 cp /tmp/fai/crypt* ${target}/boot/$(hostname)
 
-[ ! -d /usr/lib/dracut/modules.d/91local ] && mkdir -p /usr/lib/dracut/modules.d/91local
-cat<<EOF > /usr/lib/dracut/modules.d/91local/module-setup.sh
-#!/bin/bash
-# -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
-# ex: ts=8 sw=4 sts=4 et filetype=sh
-check() {
-return 0
-}
-
-depends() {
-return 0
-}
-
-install() {
-inst_hook initqueue/settled 91 "\$moddir/mount-local.sh"
-}
-EOF
-
-# This is the script that will be run byt the initrd we just call our manual script here.
-cat<<EOF > /usr/lib/dracut/modules.d/91local/mount-local.sh
-#!/bin/sh
-# -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
-# ex: ts=8 sw=4 sts=4 et filetype=sh
-
-/boot/setup-storage
-EOF
-
-chmod 755 /usr/lib/dracut/modules.d/91local/*.sh
-
+# create a dracut.conf for our initial run
 cat<<EOF >> /etc/dracut.conf
 tmpdir=${target}/var/tmp
 EOF
 
-# copy the relevant files to the ${target} so regenerating the initramfs on the new host doesn't render it unbootable
-cp /boot/setup-storage                           ${target}/boot/setup-storage
-cp /boot/{System.map,config,vmlinuz}-$(uname -r) ${target}/boot
-cp /etc/dracut.conf.d/01-omit.conf               ${target}/etc/dracut.conf.d/01-omit.conf
-cp /etc/dracut.conf.d/10-crypt.conf              ${target}//etc/dracut.conf.d/10-crypt.conf
-[ ! -d ${target}/usr/lib/dracut/modules.d/91local ] && mkdir -p ${target}/usr/lib/dracut/modules.d/91local
-cp -p /usr/lib/dracut/modules.d/91local/*.sh     ${target}/usr/lib/dracut/modules.d/91local/
-
-
-# Run dracut and bake our initrd.img
-[ -f ${target}/boot/initrd.img-$(uname -r) ] && rm ${target}/boot/initrd.img-$(uname -r)
-dracut --force -M ${target}/boot/initrd.img-$(uname -r) $(uname -r)
-
-rm ${target}/etc/crypttab
+# # copy the relevant files to the ${target} so regenerating the initramfs on the new host doesn't render it unbootable
+# cp /boot/setup-storage                           ${target}/boot/setup-storage
+# cp /boot/{System.map,config,vmlinuz}-$(uname -r) ${target}/boot
+# cp /etc/dracut.conf.d/01-omit.conf               ${target}/etc/dracut.conf.d/01-omit.conf
+# cp /etc/dracut.conf.d/10-crypt.conf              ${target}//etc/dracut.conf.d/10-crypt.conf
+# [ ! -d ${target}/usr/lib/dracut/modules.d/91local ] && mkdir -p ${target}/usr/lib/dracut/modules.d/91local
+# cp -p /usr/lib/dracut/modules.d/91local/*.sh     ${target}/usr/lib/dracut/modules.d/91local/
+#
+#
+# # Run dracut and bake our initrd.img
+# [ -f ${target}/boot/initrd.img-$(uname -r) ] && rm ${target}/boot/initrd.img-$(uname -r)
+# dracut --force -M ${target}/boot/initrd.img-$(uname -r) $(uname -r)
+#
+# rm ${target}/etc/crypttab
 
 exit $error
