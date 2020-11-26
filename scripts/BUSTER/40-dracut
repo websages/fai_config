@@ -1,9 +1,9 @@
 #!/bin/bash
 # [ -d /target/tmp/initrd.d/ ] && rm -rf /target/tmp/initrd.d/; mkdir -p /target/tmp/initrd.d/ ; (cd /target/tmp/initrd.d/ ; cat /target/boot/initrd.img-4.19.0-8-amd64 | gzip -dc | cpio -idm); ls -l /target/tmp/initrd.d; cat /target/tmp/initrd.d/boot/setup-storage
 error=0 ; trap "error=$((error|1))" ERR
-[ -z "${target}" ] && target='/target'
+[ -z "${target}" ] && target='/target/'
 [ -z "${config}" ] && config='/var/lib/fai/config'
-files="${config}/files"
+files="${config}/files/"
 export files target config
 
 # install a file from /var/lib/config/files/* to /target/*
@@ -46,7 +46,10 @@ finstall(){
   [ -z "${TARGET}"] && TARGET="${SOURCE}"
 
   set -x
-  install -D -o "${OWNER}" -g "${GROUP}" -m "${MODE}" "${files}/${SOURCE}" "${target}/${TARGET}"
+  # install to our install environment
+  install -D -o "${OWNER}" -g "${GROUP}" -m "${MODE}" "${files}${SOURCE}" "/${TARGET}"
+  # install to our target host
+  install -D -o "${OWNER}" -g "${GROUP}" -m "${MODE}" "${files}${SOURCE}" "${target}${TARGET}"
   set +x
 }
 
@@ -60,8 +63,9 @@ finstall -m 0755 /usr/lib/dracut/modules.d/91local/module-setup.sh
 
 BOOT="$(mount | grep "/dev/sda1" | awk '{print $3}')"
 INSTALL_ITEMS="$(ls -1 ${BOOT}/$(hostname -s)/ | sed -e "s/.*\/$(hostname -s)\///" | tr '\n' ' ')"
-echo "install_items+=\" ${INSTALL_ITEMS} /boot/setup-storage\"" >> /etc/dracut.conf.d/10-crypt.conf
-echo "install_items+=\" ${INSTALL_ITEMS} /boot/setup-storage\"" >> ${target}/etc/dracut.conf.d/10-crypt.conf
+grep -q " ${INSTALL_ITEMS} /boot/setup-storage" /etc/dracut.conf.d/10-crypt.conf || \
+  echo "install_items+=\" ${INSTALL_ITEMS} /boot/setup-storage\"" >> /etc/dracut.conf.d/10-crypt.conf
+cp /etc/dracut.conf.d/10-crypt.conf ${target}/etc/dracut.conf.d/10-crypt.conf
 
 # make ${target}/boot/${fqdn}, link hostname -s, localhost to it, copy the encryption keys to it (cd ${target}/boot; mkdir $(hostname); [ "$(hostname)" != "$(hostname -s)" ] && ln -s $(hostname) $(hostname -s); ln -s $(hostname) localhost);
 cp /tmp/fai/crypt* ${target}/boot/$(hostname)
@@ -71,10 +75,7 @@ grep -q "${target}/var/tmp" /etc/dracut.conf || cat<<EOF >> /etc/dracut.conf
 tmpdir=${target}/var/tmp
 EOF
 
-# # copy the relevant files to the ${target} so regenerating the initramfs on the new host doesn't render it unbootable
-# cp /boot/setup-storage                           ${target}/boot/setup-storage
 # cp /boot/{System.map,config,vmlinuz}-$(uname -r) ${target}/boot
-# cp /etc/dracut.conf.d/01-omit.conf               ${target}/etc/dracut.conf.d/01-omit.conf
 # cp /etc/dracut.conf.d/10-crypt.conf              ${target}//etc/dracut.conf.d/10-crypt.conf
 # [ ! -d ${target}/usr/lib/dracut/modules.d/91local ] && mkdir -p ${target}/usr/lib/dracut/modules.d/91local
 # cp -p /usr/lib/dracut/modules.d/91local/*.sh     ${target}/usr/lib/dracut/modules.d/91local/
@@ -82,7 +83,6 @@ EOF
 #
 # # Run dracut and bake our initrd.img
 # [ -f ${target}/boot/initrd.img-$(uname -r) ] && rm ${target}/boot/initrd.img-$(uname -r)
-exit 0
 dracut --force -M ${target}/boot/initrd.img-$(uname -r) $(uname -r)
 
 # rm ${target}/etc/crypttab
