@@ -45,8 +45,11 @@ finstall(){
   done
   [ -z "${TARGET}"] && TARGET="${SOURCE}"
 
+  set -x
   install -D -o "${OWNER}" -g "${GROUP}" -m "${MODE}" "${files}/${SOURCE}" "${target}/${TARGET}"
+  set +x
 }
+exit 0
 
 # install dracut on the target
 # chroot ${target} /usr/bin/env DEBIAN_FRONTEND=noninteractive /usr/bin/apt-get -y -o DPkg::options::='--force-confdef' -o DPkg::options::='--force-confold' install dracut
@@ -56,19 +59,19 @@ finstall -m 0755 /boot/setup-storage
 finstall -m 0755 /usr/lib/dracut/modules.d/91local/mount-local.sh
 finstall -m 0755 /usr/lib/dracut/modules.d/91local/module-setup.sh
 
-# BOOT="$(mount | grep "/dev/sda1" | awk '{print $3}')"
-
-# INSTALL_ITEMS="$(ls -1 ${BOOT}/$(hostname -s)/ | sed -e "s/.*\/$(hostname -s)\///" | tr '\n' ' ')"
-# echo "install_items+=\"${INSTALL_ITEMS} /boot/setup-storage\"" >> /etc/dracut.conf.d/10-crypt.conf
+BOOT="$(mount | grep "/dev/sda1" | awk '{print $3}')"
+INSTALL_ITEMS="$(ls -1 ${BOOT}/$(hostname -s)/ | sed -e "s/.*\/$(hostname -s)\///" | tr '\n' ' ')"
+echo "install_items+=\" ${INSTALL_ITEMS} /boot/setup-storage\"" >> /etc/dracut.conf.d/10-crypt.conf
+echo "install_items+=\" ${INSTALL_ITEMS} /boot/setup-storage\"" >> ${target}/etc/dracut.conf.d/10-crypt.conf
 
 # make ${target}/boot/${fqdn}, link hostname -s, localhost to it, copy the encryption keys to it
-# (cd ${target}/boot; mkdir $(hostname); [ "$(hostname)" != "$(hostname -s)" ] && ln -s $(hostname) $(hostname -s); ln -s $(hostname) localhost);
-# cp /tmp/fai/crypt* ${target}/boot/$(hostname)
+(cd ${target}/boot; mkdir $(hostname); [ "$(hostname)" != "$(hostname -s)" ] && ln -s $(hostname) $(hostname -s); ln -s $(hostname) localhost);
+cp /tmp/fai/crypt* ${target}/boot/$(hostname)
 
 # create a dracut.conf for our initial run
-# cat<<EOF >> /etc/dracut.conf
-# tmpdir=${target}/var/tmp
-# EOF
+grep -q "${target}/var/tmp" /etc/dracut.conf || cat<<EOF >> /etc/dracut.conf
+tmpdir=${target}/var/tmp
+EOF
 
 # # copy the relevant files to the ${target} so regenerating the initramfs on the new host doesn't render it unbootable
 # cp /boot/setup-storage                           ${target}/boot/setup-storage
@@ -81,8 +84,8 @@ finstall -m 0755 /usr/lib/dracut/modules.d/91local/module-setup.sh
 #
 # # Run dracut and bake our initrd.img
 # [ -f ${target}/boot/initrd.img-$(uname -r) ] && rm ${target}/boot/initrd.img-$(uname -r)
-# dracut --force -M ${target}/boot/initrd.img-$(uname -r) $(uname -r)
-#
+dracut --force -M ${target}/boot/initrd.img-$(uname -r) $(uname -r)
+
 # rm ${target}/etc/crypttab
 
 exit $error
