@@ -57,6 +57,7 @@ finstall(){
 # chroot ${target} /usr/bin/env DEBIAN_FRONTEND=noninteractive /usr/bin/apt-get -y -o DPkg::options::='--force-confdef' -o DPkg::options::='--force-confold' install dracut
 
 finstall /etc/dracut.conf.d/01-omit.conf
+finstall /etc/dracut.conf.d/91-local.conf
 finstall -m 0755 /boot/setup-storage
 finstall -m 0755 /usr/lib/dracut/modules.d/91local/mount-local.sh
 finstall -m 0755 /usr/lib/dracut/modules.d/91local/module-setup.sh
