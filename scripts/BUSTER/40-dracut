@@ -86,7 +86,7 @@ EOF
 # cp /boot/{System.map,config,vmlinuz}-$(uname -r) ${target}/boot
 # # Run dracut and bake our initrd.img
 [ -f ${target}/boot/initrd.img-$(uname -r) ] && rm ${target}/boot/initrd.img-$(uname -r)
-dracut --force -M ${target}/boot/initrd.img-$(uname -r) $(uname -r)
+dracut --force -M ${target}/boot/initrd.img-$(uname -r) $(uname -r) > /tmp/fai/dracut.log 2>&1
 error=$?
 
 
