@@ -1,10 +1,16 @@
 #!/bin/bash
+set -e
 # [ -d /target/tmp/initrd.d/ ] && rm -rf /target/tmp/initrd.d/; mkdir -p /target/tmp/initrd.d/ ; (cd /target/tmp/initrd.d/ ; cat /target/boot/initrd.img-4.19.0-8-amd64 | gzip -dc | cpio -idm); ls -l /target/tmp/initrd.d; cat /target/tmp/initrd.d/boot/setup-storage
 error=0 ; trap "error=$((error|1))" ERR
 [ -z "${target}" ] && target='/target/'
 [ -z "${config}" ] && config='/var/lib/fai/config'
 files="${config}/files/"
 export files target config
+
+# build our key structure
+[ ! -f "${target}/boot/$(hostname)" ] && mkdir -p "${target}/boot/$(hostname)"
+[ ! -h "${target}/boot/$(hostname -s)" ] && (cd "${target}/boot/"; ln -s $(hostname) $(hostname -s))
+[ ! -h "${target}/boot/localhost" ] && (cd "${target}/boot/"; ln -s $(hostname) localhost)
 
 # install a file from /var/lib/config/files/* to /target/*
 finstall(){
@@ -63,6 +69,7 @@ finstall -m 0755 /usr/lib/dracut/modules.d/91local/mount-local.sh
 finstall -m 0755 /usr/lib/dracut/modules.d/91local/module-setup.sh
 
 BOOT="$(mount | grep "/dev/sda1" | awk '{print $3}')"
+
 INSTALL_ITEMS="$(ls -1 ${BOOT}/$(hostname -s)/ | sed -e "s/.*\/$(hostname -s)\///" | tr '\n' ' ')"
 grep -q " ${INSTALL_ITEMS} /boot/setup-storage" /etc/dracut.conf.d/10-crypt.conf || \
   echo "install_items+=\" ${INSTALL_ITEMS} /boot/setup-storage\"" >> /etc/dracut.conf.d/10-crypt.conf
@@ -80,6 +87,8 @@ EOF
 # # Run dracut and bake our initrd.img
 [ -f ${target}/boot/initrd.img-$(uname -r) ] && rm ${target}/boot/initrd.img-$(uname -r)
 dracut --force -M ${target}/boot/initrd.img-$(uname -r) $(uname -r)
+error=$?
+
 
 # rm ${target}/etc/crypttab
 
