@@ -38,5 +38,4 @@ chroot ${target} /usr/sbin/update-grub
 # update-grub just calls:
 # chroot ${target} grub-mkconfig -o /boot/grub/grub.cfg
 
-exit 1
 exit $error
