@@ -76,7 +76,7 @@ grep -q " ${INSTALL_ITEMS} /boot/setup-storage" /etc/dracut.conf.d/10-crypt.conf
 cp /etc/dracut.conf.d/10-crypt.conf ${target}/etc/dracut.conf.d/10-crypt.conf
 
 # make ${target}/boot/${fqdn}, link hostname -s, localhost to it, copy the encryption keys to it (cd ${target}/boot; mkdir $(hostname); [ "$(hostname)" != "$(hostname -s)" ] && ln -s $(hostname) $(hostname -s); ln -s $(hostname) localhost);
-(cd /tmp/fai; for file in $(ls crypt*); do sed -e 's/tmp\/fai/boot/' ${file} >  ${target}/boot/$(hostname)/${file}; done)
+(cd /tmp/fai; for file in $(ls crypt*); do sed -e "s/tmp\/fai/boot\/$(hostname)/" ${file} >  ${target}/boot/$(hostname)/${file}; done)
 
 # create a dracut.conf for our initial run
 grep -q "${target}/var/tmp" /etc/dracut.conf || cat<<EOF >> /etc/dracut.conf
