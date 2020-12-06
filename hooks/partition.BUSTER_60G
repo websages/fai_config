@@ -1,7 +1,6 @@
 #!/bin/bash
 cleanup(){
-  skiptask partition
-  bash
+  echo "${BASH_SOURCE[0]} complete..."
 }
 trap cleanup INT TERM
 /etc/init.d/ssh restart
@@ -85,7 +84,7 @@ if [ ! -z "${KEY_DEVICE}" ]; then
         /bin/mkdir -p /target/opt
         /bin/mkdir -p /target/tmp
         /bin/mkdir -p /target/var
-        /bin/umount /target
+        /bin/mount | grep -q /target && /bin/umount
 
 #        # Mounts (cont.)
 #        echo "Mounting File Systems"
@@ -95,12 +94,12 @@ if [ ! -z "${KEY_DEVICE}" ]; then
 #        /bin/mount /dev/mapper/vg0-var     /target/var
 
         # File System Table (fstab)
-        echo "/dev/vg0/root    /        ext3        rw,errors=remount-ro       0        1" >  /tmp/fai/fstab
-        echo "/dev/sda1        /boot    ext3        rw                         0        2" >> /tmp/fai/fstab
+        echo "/dev/vg0/root    /        ext4        rw,errors=remount-ro       0        1" >  /tmp/fai/fstab
+        echo "/dev/sda1        /boot    ext4        rw                         0        2" >> /tmp/fai/fstab
         echo "/dev/vg0/swap    none     swap        sw                         0        0" >> /tmp/fai/fstab
-        echo "/dev/vg0/opt     /opt     ext3        rw                         0        2" >> /tmp/fai/fstab
-        echo "/dev/vg0/tmp     /tmp     ext3        rw                         0        2" >> /tmp/fai/fstab
-        echo "/dev/vg0/var     /var     ext3        rw                         0        2" >> /tmp/fai/fstab
+        echo "/dev/vg0/opt     /opt     ext4        rw                         0        2" >> /tmp/fai/fstab
+        echo "/dev/vg0/tmp     /tmp     ext4        rw                         0        2" >> /tmp/fai/fstab
+        echo "/dev/vg0/var     /var     ext4        rw                         0        2" >> /tmp/fai/fstab
         echo "/dev/sr0         /media/cdrom0        udf,iso9660 ro,user,noauto 0        0" >> /tmp/fai/fstab
     fi
 else
