@@ -28,7 +28,7 @@ case $HOSTNAME in
     oppenheimer|planck|einstein|pascal|butters|clarke|wilford)
 	echo "CRYPT_SERVER CRYPT_SERVER_60G" ;;
     eir|eir.apartment.jameswhite.org)
-	echo "BUSTER BUSTER_60G" ;;
+	echo "BUSTER BUSTER_60G XPSM1330" ;;
     octoprint|euler)
 	echo "CRYPT_SERVER CRYPT_SERVER_20G" ;;
     curie.hq.thebikeshed.io|curie)
