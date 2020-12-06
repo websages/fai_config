@@ -1,0 +1,15 @@
+#!/bin/bash
+
+error=0 ; trap "error=$((error|1))" ERR
+
+sed -i '' -e '/s#NAutoVTs=6/NAutoVTs=1/' ${target}/etc/systemd/logind.conf
+
+
+cat<<EOF > ${target}/etc/systemd/system/getty@tty1.service.d/override.conf
+[Service]
+ExecStart=
+ExecStart=-/sbin/agetty --autologin root --noclear %I 38400 li
+EOF
+
+exit $error
+
