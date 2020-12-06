@@ -38,7 +38,7 @@ apt-get install -y libavahi-compat-libdnssd1 libqt5core5a libqt5gui5 libqt5netwo
 
 # Settings -> All -> Windows -> Window Focus; Uncheck Raise windows
 # Enlightenment has support for a system tray but it is disabled by default. To enable the system tray, open the Enlightenment main menu, navigate to the Settings submenu and click on the Modules option. Scroll down until you see the Systray option. Highlight that option and click the Load button. Now that the module has been loaded, it can be added to the shelf. Right click on the shelf you wish to add the Systray to, hightlight the Shelf submenu and click on the Contents option. Scroll down until you see Systray. Highlight that option and click the Add button.
-
+# Right-click the three dots to the right of the launch bar; check Autohide
 
 dpkg -i synergy-1.12.2-1.stable.a52ccb2d.debian10_amd64.deb
 ```
@@ -49,4 +49,20 @@ echo <<EOF> .synergy/SSL/Fingerprints/TrustedServers.txt
 51:F1:8F:F6:FB:9D:E5:9F:C0:E4:D9:36:1F:3D:F3:FD:50:17:AB:30:9B:F8:00:C9:58:CD:15:92:80:A7:5E:AE
 EOF
 ```
+
+```
+wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+apt-get install -y fonts-liberation xdg-utils libu2f-udev libvulkan1
+dpkg -i google-chrome-stable_current_amd64.deb
+
+```
+
+
+
+
+
+
+
+
+
 
