@@ -25,9 +25,11 @@ cat /boot/${DHCPHOST}/crypttab | while read cryptdev blockdev keyfile type; do
   [ ! -h /dev/mapper/${cryptdev} ] && cryptsetup --key-file=${keyfile} ${type//,discard/}Open ${blockdev} ${cryptdev}
 done
 
+echo
 echo "kicking LVM in the ass"
 lvm pvscan && lvm vgscan && lvm lvscan && lvm vgchange -ay
 
+echo
 echo "mounting that shit"
 set -x
 mount | grep sysroot || mount -t ext4 /dev/mapper/vg0-root /sysroot || exit 1
@@ -37,6 +39,7 @@ mount | grep opt     || [ -h /dev/mapper/vg_opt-opt ] && mount -t ext4 /dev/mapp
 umount /boot         && mount /dev/sda1 /sysroot/boot
 set +x
 
+echo
 echo "finish setup-storage"
 bash
 
