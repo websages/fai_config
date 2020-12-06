@@ -29,23 +29,25 @@ fi
 # set up lvm on cryptoroot
 
 if [ ! -z "${KEY_DEVICE}" ]; then
-    /bin/mount ${KEY_DEVICE}${KEY_PARTITION} /mnt
+    /bin/mount | grep -q "/dev/sda1 on /mnt" || /bin/mount ${KEY_DEVICE}${KEY_PARTITION} /mnt
     if [ $? -eq 0 ] ; then
         if [ ! -d "/mnt/$(hostname -s)" ]; then /bin/mkdir -p "/mnt/$(hostname -s)" ;fi
         /bin/dd if=/dev/urandom of="/mnt/$(hostname -s)/crypt_dev_sda2" bs=1 count=256
         chown root:root /mnt/$(hostname -s)/crypt_dev_sda2
         chmod 400 /mnt/$(hostname -s)/crypt_dev_sda2
 
-        [ ! -d "/run/cryptsetup" ] && mkdir -p "/run/cryptsetup"
-        echo "YES" | cryptsetup --cipher=aes-xts-plain64 --offset=0 --key-file=/mnt/$(hostname -s)/crypt_dev_sda2 --key-size=512 open --type=plain /dev/sda2 crypt_dev_sda2
+        if [ ! -h "/dev/mapper/crypt_dev_sda2" ]; then
+          [ ! -d "/run/cryptsetup" ] && mkdir -p "/run/cryptsetup"
+          echo "YES" | cryptsetup --cipher=aes-xts-plain64 --offset=0 --key-file=/mnt/$(hostname -s)/crypt_dev_sda2 --key-size=512 open --type=plain /dev/sda2 crypt_dev_sda2
+        fi
 
-        if [ ! -h /dev/mapper/cryptoroot ];then
+        if [ ! -h /dev/mapper/crypt_dev/sda2 ];then
             echo "the device-map did not succeed"
             exit 1;
         fi
         echo "crypt_dev_sda2 /dev/sda2 /boot/$(hostname -s)/crypt_dev_sda2 luks" > /etc/crypttab
         echo "crypt_dev_sda2 /dev/sda2 /boot/$(hostname -s)/crypt_dev_sda2 luks" > /mnt/$(hostname -s)/crypttab
-        /bin/umount /mnt
+        /bin/mount | grep -q "/dev/sda1 on /mnt" && /bin/umount /mnt
         /sbin/pvcreate /dev/mapper/crypt_dev_sda2
 
         # Volume Groups
