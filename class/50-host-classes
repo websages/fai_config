@@ -27,7 +27,7 @@ case $HOSTNAME in
 	echo "WHEEZY GRUB_LEGACY DELL_MINI9_16GB" ;;
     oppenheimer|planck|einstein|pascal|butters|clarke|wilford)
 	echo "CRYPT_SERVER CRYPT_SERVER_60G" ;;
-    eir)
+    eir|eir.apartment.jameswhite.org)
 	echo "CRYPT_SERVER CRYPT_SERVER_60G BUSTER" ;;
     octoprint|euler)
 	echo "CRYPT_SERVER CRYPT_SERVER_20G" ;;
