@@ -38,4 +38,6 @@ umount /boot         && mount /dev/sda1 /sysroot/boot
 set +x
 
 echo "finish setup-storage"
+bash
+
 exit 0
