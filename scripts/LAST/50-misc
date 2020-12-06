@@ -4,6 +4,14 @@
 
 error=0 ; trap "error=$((error|1))" ERR
 
+cat<<EOF > ${target}/etc/network/interfaces.d/eth0
+auto eth0
+# iface eth0 inet dhcp
+iface eth0 inet static
+    address 10.252.0.31/24
+    gateway 10.252.0.1
+EOF
+
 # set bios clock
 if [ $do_init_tasks -eq 1 ] ; then
     case "$UTC" in
