@@ -3,6 +3,57 @@ stuff for fai
 FAI_CONFIG_SRC=git+http://github.com/fapestniegd/fai_config
 
 
+ - scripts/BUSTER/40-dracut
+   - prepare the install environment to run dracut
+   - run dracut in the install environement
+   - prepare the target environment to run dracut
+ - scripts/BUSTER/60-grub
+   - points grub to the initrd created in the install environment
+
+
+replace quiet in the kernel command line with rd.shell to get a dracut shell
+
+  - iterating in the install root
+```
+ clear; rm -rf /var/lib/fai/config; (cd /var/lib/fai; git clone https://github.com/websages/fai_config config && (cd config; git checkout eir-fixes))
+ /var/lib/fai/config/scripts/BUSTER/40-dracut
+
+```
+
+  - From the install environment:
+    - cat /etc/dracut.conf.d/* | sed -e 's/#.*//' | grep . | sort -uclear; cat /etc/dracut.conf.d/* | sed -e 's/#.*//' | grep . | sort -u
+    - run `/var/lib/fai/config/scripts/BUSTER/40-dracut 2>&1 | tee wtf`
+    - check the exit status
+    - unpack ${target}/boot/initrd.img-$(uname -r)
+      - [ -d /target/tmp/initrd.d/ ] && rm -rf /target/tmp/initrd.d/; mkdir -p /target/tmp/initrd.d/
+      - (cd /target/tmp/initrd.d/ ; cat /target/boot/initrd.img-4.19.0-8-amd64 | gzip -dc | cpio -idm)
+    - ensure the following files are in both the install environement `/` and target `/target/`
+      - /etc/dracut.conf.d/01-omit.conf                     # tells dracut to omit systemd, lvm, mdraid, etc, and to add lvm and crypt
+      - /etc/dracut.conf.d/10-crypt.conf                    # tells dracut to install our crypttab files and /boot/setup storage into the initrd
+      - /usr/lib/dracut/modules.d/91local/module-setup.sh   # installs the hook to run `$modddir/mount-local.sh`
+      - /usr/lib/dracut/modules.d/91local/mount-local.sh    # runs /boot/setup/storage on boot
+      - /boot/setup-storage                                 # does some prep,  activates encrypted volumes, starts lvm, mounts filesystems
+
+
+You need a package source (can we pin this with recollections?)
+You need an nfsroot (can we build this with docker?)
+You need an FAI kernel and initrd (do these come from the nfsroot?)
+# apt-get install linux-image-4.19.0-13-amd64 (this updates under your feet, fucking you hard)
+You need a bootable cd-image (can we generate *THIS* with docker?)
+You need a fai-config space (github.com works fine)
+  - this should create root on lvm on key-locked luks, and install the dracut modules to fetch the key and decrypt it on boot
+    - `/etc/dracut.conf.d/*` is where modules are toggled on and off
+    - `/usr/lib/dracut/modules.d/` is where the modules are
+      - modules should have a check(), depends(), and install(), functions
+You need a dhcp server that can hand out options
+You need a tftp server to host the kernel/initrd (can this be hooktftp or tfpd-cgi?)
+You need a web server to host the cd-image
+
+
+
+/lib/dracut/hooks/initqueue/settled/blocksumlink.sh -e /dev/mapper-vg0-root
+`$hookdir/initqueue/finished/*.sh`
+
 
 #### windows
 backshed 
