@@ -1,5 +1,11 @@
-#! /bin/bash
+#!/bin/bash
+cleanup(){
+  skiptask partition
+  bash
+}
+trap cleanup INT TERM
 /etc/init.d/ssh restart
+
 echo '################################################################################'
 echo '#                                                                              #'
 echo '#                                                                              #'
@@ -99,4 +105,5 @@ if [ ! -z "${KEY_DEVICE}" ]; then
 else
     exit -1;
 fi
+
 skiptask partition
