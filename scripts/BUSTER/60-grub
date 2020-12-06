@@ -9,7 +9,7 @@ chroot ${target} /usr/bin/env DEBIAN_FRONTEND=noninteractive /usr/bin/apt-get -y
 cmdline_linux=$(grep GRUB_CMDLINE_LINUX= ${target}/etc/default/grub | sed -e 's/^[^"]*"//' -e 's/"[^"]*//g' )
 disk_uuid=$(blkid /dev/sda2 -o export | grep "^UUID" | sed -e 's/UUID=//')
 
-inject="rd.md=0 rd.luks=0 rd.lvm=0 net.ifnames=0 biosdevname=0"
+inject="rd.md=0 rd.luks=0 rd.lvm=0 net.ifnames=0 biosdevname=0 rd.shell"
 # inject="cryptdevice=/dev/sda2:vg0" # prompts for a passphrase
 # inject="rd.auto=1" # panics the kernel
 # inject="rd.md=0 rd.luks.uuid=${disk_uuid} rd.luks.key=\/boot\/crypt_dev_sda2 rd.lvm.vg=vg0" # panics the kernel
@@ -32,6 +32,7 @@ grep -q GRUB_ENABLE_CRYPTODISK ${target}/etc/default/grub || echo "GRUB_ENABLE_C
 grub-install --root-directory=${target} /dev/sda
 
 # generate the grub.cfg
+[ ! -d ${target}/boot/images ] && mkdir -p ${target}/boot/images
 chroot ${target} /usr/sbin/update-grub
 
 # update-grub just calls:

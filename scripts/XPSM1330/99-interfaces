@@ -1,0 +1,32 @@
+#!/bin/bash
+
+error=0 ; trap "error=$((error|1))" ERR
+
+cat<<EOF > ${target}/etc/network/interfaces.d/eth0
+auto eth0
+# iface eth0 inet dhcp
+iface eth0 inet static
+    address 10.252.0.31/24
+    gateway 10.252.0.1
+EOF
+
+cat<<EOF > ${target}/etc/network/interfaces.d/wlan0
+auto wlan0
+allow-hotplug wlan0
+iface wlan0 inet dhcp
+    wpa-conf /etc/wpa_supplicant/wpa_supplicant.conf
+EOF
+
+
+cat<<EOF > ${target}/etc/wpa_supplicant/wpa_supplicant.conf
+ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
+update_config=1
+
+network={
+    ssid="soggi.es"
+    psk="${soggies_wifi_password}"
+}
+EOF
+
+exit $error
+
