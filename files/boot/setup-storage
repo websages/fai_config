@@ -21,9 +21,9 @@ echo
 echo "activating all of our encrypted volumes"
 cat /boot/${DHCPHOST}/crypttab | while read cryptdev blockdev keyfile type; do
   echo "keyfile is ${keyfile}"
-  echo "cryptsetup --key-file=${keyfile} ${type//,discard/}Open ${blockdev} ${cryptdev}"
-  [ ! -h /dev/mapper/${cryptdev} ] && cryptsetup --type plain --cipher=aes-xts-plain64 --key-size=512 --key-file=/boot/localhost/crypt_dev_sda2 --offset=0 open /dev/sda2 crypt_dev_sda2
-
+  COMMAND="cryptsetup --type plain --cipher=aes-xts-plain64 --key-size=512 --key-file=/boot/${DHCPHOST}/crypt_dev_sda2 --offset=0 open /dev/sda2 crypt_dev_sda2"
+  echo -- "${COMMAND}"
+  [ ! -h /dev/mapper/${cryptdev} ] && echo 'YES' | ${COMMAND}
 done
 
 echo
