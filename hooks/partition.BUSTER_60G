@@ -47,7 +47,7 @@ if [ ! -z "${KEY_DEVICE}" ]; then
           echo "YES" | cryptsetup --cipher=aes-xts-plain64 --offset=0 --key-file=/mnt/$(hostname -s)/crypt_dev_sda2 --key-size=512 open --type=plain /dev/sda2 crypt_dev_sda2
         fi
 
-        if [ ! -h /dev/mapper/crypt_dev/sda2 ];then
+        if [ ! -h /dev/mapper/crypt_dev_sda2 ];then
             echo "the device-map did not succeed"
             exit 1;
         fi
