@@ -77,7 +77,8 @@ if [ ! -z "${KEY_DEVICE}" ]; then
 
         # Mount Points
         echo "Mounting vg0-root on /target"
-        /bin/mount /dev/mapper/vg0-root    /target
+        [ ! -d /target ] && mkdir /target
+        /bin/mount | grep -q /target || /bin/mount /dev/mapper/vg0-root  /target
         echo $?
         echo "Creating Mount Points"
         /bin/mkdir -p /target/boot
