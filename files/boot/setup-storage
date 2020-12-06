@@ -42,6 +42,5 @@ set +x
 
 echo
 echo "finish setup-storage"
-bash
 
 exit 0
