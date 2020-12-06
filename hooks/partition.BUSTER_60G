@@ -84,7 +84,7 @@ if [ ! -z "${KEY_DEVICE}" ]; then
         /bin/mkdir -p /target/opt
         /bin/mkdir -p /target/tmp
         /bin/mkdir -p /target/var
-        /bin/mount | grep -q /target && /bin/umount
+        /bin/mount | grep -q /target && /bin/umount /target
 
 #        # Mounts (cont.)
 #        echo "Mounting File Systems"
