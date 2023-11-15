@@ -7,6 +7,8 @@
 
 # use a list of classes for our demo machine
 case $HOSTNAME in
+    newvm06)
+        echo "BOOKWORM CRYPTWS_LVM GRUB_PC" ;;
     faiserver)
         echo "FAIBASE DEBIAN DEMO FAISERVER" ;;
     demohost|client*)
@@ -15,12 +17,6 @@ case $HOSTNAME in
         echo "FAIBASE DEBIAN DEMO XORG XFCE LVM";;
     gnomehost)
         echo "FAIBASE DEBIAN DEMO XORG GNOME";;
-    ubuntuhost)
-        echo "FAIBASE DEBIAN DEMO UBUNTU JAMMY JAMMY64 XORG";;
-    rocky)
-        echo "FAIBASE ROCKY"   # you may want to add class XORG here
-        ifclass AMD64 && echo ROCKY8_64
-	;;
     *)
         echo "FAIBASE DEBIAN DEMO" ;;
 esac
