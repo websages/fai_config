@@ -1,14 +1,13 @@
-PACKAGES aptitude
+PACKAGES install-norec
 fai-quickstart
 
-dhcp3-client
 debmirror tcpdump
-apache2
-genisoimage grub
-apt-proxy lftp
-
-PACKAGES aptitude I386
-syslinux
-
-PACKAGES aptitude AMD64
-syslinux
+xorriso grub-pc
+lftp curl
+netselect
+syslinux-common pxelinux
+apt-cacher-ng
+nscd psmisc
+bind9 dnsutils
+iptables-persistent
+zile

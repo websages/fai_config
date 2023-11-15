@@ -1,0 +1,38 @@
+PACKAGES dnfgroup
+core
+minimal-environment
+#server-product-environment
+#headless-management
+
+PACKAGES dnfgroup XORG
+graphical-server-environment
+workstation-product-environment
+
+PACKAGES dnfi
+NetworkManager
+dbus-broker # needed by systemd
+chrony
+kernel
+dracut
+less
+openssh
+openssh-clients
+openssh-server
+vim-enhanced
+man
+curl
+unzip
+which
+ncurses ncurses-base
+coreutils-common
+libibverbs # needed for nc, but missing dependency
+
+PACKAGES dnfi GRUB_PC
+grub2-pc
+
+PACKAGES dnfi GRUB_EFI
+grub2-efi
+
+
+PACKAGES dnfi LVM
+lvm2

@@ -1,17 +1,8 @@
-PACKAGES aptitude
+PACKAGES install-norec
 
-iceweasel
-icedove
-iceweasel-gnome-support
-icedove-gnome-support
-menu gdm
-gnome-apt
+firefox-esr
+#thunderbird
+menu gdm3
 gnome-core
-desktop-base
-evince gconf-editor
-gnome-backgrounds gnome-about gnome-keyring gnome-menus
-gnome-netstatus-applet gnome-nettool gnome-power-manager
 gnome-screensaver gnome-system-monitor gnome-system-tools
-gnome-network-admin gnome-themes 
-gnome-utils gucharmap
-libgnomevfs2-bin libgnomevfs2-extra libgnome2-perl
+network-manager-gnome
