@@ -20,7 +20,7 @@ case $HOSTNAME in
 #    soekris)
 #	echo "SOEKRIS DHCPC DEMO XORG GNOME";;
     newvm06)
-	echo "BOOKWORM";;
+	echo "BOOKWORM CRYPTWS_LVM";;
     audhumla)
 	echo "SOEKRIS" ;;
     black)
