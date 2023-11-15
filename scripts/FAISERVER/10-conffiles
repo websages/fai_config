@@ -1,14 +1,49 @@
 #! /bin/bash
 
-fcopy -Bv /etc/dhcp3/dhcpd.conf /etc/default/tftpd-hpa # not needed /etc/apache2/conf.d
-fcopy -Bvr /etc/fai
+fcopy -BvrS /etc/fai
+fcopy -BvS /etc/dhcp/dhcpd.conf
 
-#/etc/fai/fai.conf /etc/fai/make-fai-nfsroot.conf
-fcopy /etc/apt-proxy/apt-proxy-v2.conf /etc/fai/apt/sources.list
-# use the same sources.list for the server itself and the clients
-cp -a $target/etc/fai/apt $target/etc/
+if [ $FAI_ACTION = "install" -o $FAI_ACTION = "dirinstall" ] ; then
 
-rm -f $target/etc/resolv.conf
+    # use the same sources.list for the server itself and the clients
+    cp -a $target/etc/fai/apt $target/etc/
 
-# create some host entries
-perl -e 'for (1..25) {printf "192.168.1.%s atom%02s\n",$_,$_;}' >> $target/etc/hosts
+    if ifclass DHCPC; then
+	rm -f $target/etc/resolv.conf
+    else
+	echo 127.0.0.1 > $target/etc/resolv.conf
+    fi
+
+    # faiserver uses its own apt cache
+    ainsl -av /etc/apt/apt.conf.d/02proxy 'Acquire::http::Proxy "http://127.0.0.1:3142";'
+
+    # create some host entries
+    _nic=$(ip route | awk '/^default/ {print $5}'|head -1)
+    myip=$(ip -br ad sh $_nic | awk '{print $3}')
+    myip=${myip%/*}
+    ainsl /etc/hosts "$myip faiserver"  # that's me
+    ainsl /etc/hosts "192.168.33.100 demohost"
+    ainsl /etc/hosts "192.168.33.101 xfcehost"
+    # add entries for 10 hosts called client 01 .. 10
+    perl -e 'for (1..10) {printf "192.168.33.%s client%02s\n",101+$_,$_;}' >> $target/etc/hosts
+
+    fai-sed '/# ReuseConnections: 1/d' /etc/apt-cacher-ng/acng.conf
+    ainsl -v /etc/apt-cacher-ng/acng.conf "ReuseConnections: 0"
+
+    # copy base file for faster building of nfsroot
+    if [ -f /var/tmp/base.tar.xz ]; then
+	cp -p /var/tmp/base.tar.xz $target/var/tmp
+    fi
+
+    if [ -d /media/mirror/pool ]; then
+	mkdir $target/var/cache/apt-cacher-ng/_import
+	cp -p /media/mirror/pool/*/*/*/*.deb $target/var/cache/apt-cacher-ng/_import
+	$ROOTCMD chown -R apt-cacher-ng:apt-cacher-ng  /var/cache/apt-cacher-ng/_import
+    fi
+
+    # copy basefiles from CD to config space
+    if [ -d $FAI/basefiles ]; then
+	mkdir -p $target/srv/fai/config/basefiles
+	cp -vp $FAI/basefiles/*.tar.* $target/srv/fai/config/basefiles 2>/dev/null || true
+    fi
+fi

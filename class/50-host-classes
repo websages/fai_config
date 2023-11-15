@@ -1,43 +1,26 @@
 #! /bin/bash
 
-# assign classes hosts
-/etc/init.d/open-vm-tools start > /dev/null 2>&1
+# assign classes to hosts based on their hostname
+
+# do not use this if a menu will be presented
+[ "$flag_menu" ] && exit 0
 
 # use a list of classes for our demo machine
 case $HOSTNAME in
-#    faiserver)
-#	echo "FAIBASE DEMO FAISERVER" ;;
-#    demohost)
-#	echo "FAIBASE DHCPC DEMO" ;;
-#    gnomehost)
-#	echo "FAIBASE DHCPC DEMO XORG GNOME";;
-#    secure)
-#	echo "SECURE DHCPC DEMO XORG GNOME";;
-#    cryptws)
-#	echo "CRYPTWS DHCPC DEMO XORG GNOME";;
-#    lofn|columbia)
-#	echo "CRYPTWS DHCPC XORG GNOME";;
-#    soekris)
-#	echo "SOEKRIS DHCPC DEMO XORG GNOME";;
-    newvm06)
-	echo "BOOKWORM CRYPTWS_LVM";;
-    audhumla)
-	echo "SOEKRIS" ;;
-    black)
-	echo "FAIBASE DHCPC" ;;
-    pink|mars)
-	echo "WHEEZY GRUB_LEGACY DELL_MINI9_16GB" ;;
-    oppenheimer|planck|einstein|pascal|butters|clarke|wilford)
-	echo "CRYPT_SERVER CRYPT_SERVER_60G" ;;
-    eir|eir.apartment.jameswhite.org)
-	echo "BUSTER BUSTER_60G XPSM1330" ;;
-    octoprint|euler)
-	echo "CRYPT_SERVER CRYPT_SERVER_20G" ;;
-    curie.hq.thebikeshed.io|curie)
-	echo "STRETCH" ;;
+    faiserver)
+        echo "FAIBASE DEBIAN DEMO FAISERVER" ;;
+    demohost|client*)
+        echo "FAIBASE DEBIAN DEMO" ;;
+    xfcehost)
+        echo "FAIBASE DEBIAN DEMO XORG XFCE LVM";;
+    gnomehost)
+        echo "FAIBASE DEBIAN DEMO XORG GNOME";;
+    ubuntuhost)
+        echo "FAIBASE DEBIAN DEMO UBUNTU JAMMY JAMMY64 XORG";;
+    rocky)
+        echo "FAIBASE ROCKY"   # you may want to add class XORG here
+        ifclass AMD64 && echo ROCKY8_64
+	;;
     *)
-	echo "BUSTER" ;;
+        echo "FAIBASE DEBIAN DEMO" ;;
 esac
-
-# (ifclass I386 || ifclass AMD64) && echo GRUB
-exit 0

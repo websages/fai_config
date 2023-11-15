@@ -1,0 +1,47 @@
+release=bookworm
+apt_cdn=http://deb.debian.org
+security_cdn=http://security.debian.org
+
+# since bullseye Debian changed the suite name for security
+if [ $release = buster ]; then
+  secsuite=buster/updates
+else
+  secsuite=$release-security
+fi
+
+CONSOLEFONT=
+KEYMAP=us-latin1
+
+# MODULESLIST contains modules that will be loaded by the new system,
+# not during installation these modules will be written to /etc/modules
+# If you need a module during installation, add it to $kernelmodules
+# in 20-hwdetect.sh.
+MODULESLIST="usbhid psmouse"
+
+# if you have enough RAM (>2GB) you may want to enable this line. It
+# also puts /var/cache into a ramdisk.
+#FAI_RAMDISKS="$target/var/lib/dpkg $target/var/cache"
+
+# if you want to use the faiserver as APT proxy
+#APTPROXY=http://faiserver:3142
+
+
+# The linux-image package has different names for Debian and Ubuntu
+if ifclass UBUNTU; then
+    kernelname=linux-image-generic
+elif ifclass I386; then
+   kernelname=linux-image-686-pae
+elif ifclass AMD64; then
+   kernelname=linux-image-amd64
+fi
+
+if [ -z "kernelname" ]; then
+    _arch=$(dpkg --print-architecture 2>/dev/null)
+    case $_arch in
+        i386)
+            kernelname=linux-image-686-pae ;;
+        *)
+            kernelname=linux-image-$_arch
+    esac
+    unset _arch
+fi

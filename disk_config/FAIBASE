@@ -2,11 +2,11 @@
 #
 # <type> <mountpoint> <size>   <fs type> <mount options> <misc options>
 
-disk_config disk1 disklabel:msdos
+# you may want to add "-O ^metadata_csum_seed" to createopts if the target
+# system is older than bullseye. See #866603, #1031415, #1031416 for more info.
 
-primary  /             1024	  ext3   rw,errors=remount-ro
-logical  swap          2048       swap   rw                   
-logical  /var          4096       ext3   rw         createopts="-m 5" tuneopts="-c 0 -i 0"
-logical  /tmp          2048       ext3   rw         createopts="-m 0" tuneopts="-c 0 -i 0"
-logical  /usr          6-8G       ext3   rw
-logical  /opt          100-50%    ext3   rw,nosuid  createopts="-m 1" tuneopts="-c 0 -i 0"
+disk_config disk1 disklabel:msdos bootable:1 fstabkey:uuid
+
+primary /      2G-50G   ext4  rw,noatime,errors=remount-ro
+logical swap   200-10G  swap  sw
+logical /home  100-     ext4  rw,noatime,nosuid,nodev createopts="-L home -m 1" tuneopts="-c 0 -i 0"
