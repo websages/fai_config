@@ -15,16 +15,6 @@ esac
 # Begin real processing below this line
 [ ! -d ${DESTDIR}/boot ] && mkdir -p ${DESTDIR}/boot
 
-echo "copying cryptsetup to the initrd."
-cp /usr/sbin/cryptsetup "${DESTDIR}/usr/sbin"
-[ ! -d ${DESTDIR}/lib/x86_64-linux-gnu ] && mkdir -p ${DESTDIR}/lib/x86_64-linux-gnu
-
-cp /lib/x86_64-linux-gnu/libcryptsetup.so.* ${DESTDIR}/lib/x86_64-linux-gnu/
-cp /lib/x86_64-linux-gnu/libpopt.so.* ${DESTDIR}/lib/x86_64-linux-gnu/
-cp /lib/x86_64-linux-gnu/libgcrypt.so.* ${DESTDIR}/lib/x86_64-linux-gnu/
-cp /lib/x86_64-linux-gnu/libgpg-error.so.* ${DESTDIR}/lib/x86_64-linux-gnu/
-ldconfig ${DESTDIR}/lib/x86_64-linux-gnu/
-
 # BUSYBOX=y in the initramfs.conf doesn't work
 [ ! -d ${DESTDIR}/bin ] && mkdir -p ${DESTDIR}/bin
 cp /usr/bin/busybox ${DESTDIR}/bin
