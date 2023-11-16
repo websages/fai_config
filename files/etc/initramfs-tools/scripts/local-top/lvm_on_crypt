@@ -26,49 +26,42 @@ case $1 in
     ;;
 esac
 
-
 # Begin real processing below this line
 
 log_begin_msg "Starting lvm-on-crypt"
 
 if [ -b /dev/mmcblk0p1 ];then
-    CRYPTDEV="/dev/mmcblk0p1"
+    KEY_DEVICE="/dev/mmcblk0p1"
 else
-    CRYPTDEV="/dev/sda1"
+    KEY_DEVICE="/dev/sda1"
 fi
 
-if [ ! -z "${CRYPTDEV}" ];then
+if [ ! -z "${KEY_DEVICE}" ];then
+  echo "using  ${KEY_DEVICE}"
 
-    modprobe ext2
-    if [ ! -d /mnt/boot/ ]; then mkdir -p /mnt/boot/ ;fi
-    mount -t ext3 "${CRYPTDEV}" /mnt/boot
+  modprobe ext2
+  if [ ! -d /mnt/boot/ ]; then mkdir -p /mnt/boot/ ;fi
+  mount -t ext3 "${KEY_DEVICE}" /mnt/boot
 
-    export HOSTNAME=$(cat /proc/cmdline|sed -e's/.*hostname=//' -e's/ .*//')
-    hostname "${HOSTNAME}"
+  export HOSTNAME=$(cat /proc/cmdline|sed -e's/.*hostname=//' -e's/ .*//')
+  hostname "${HOSTNAME}"
 
-    if [ -f /mnt/boot/${HOSTNAME}/crypttab ]; then
-        echo "using  ${CRYPTDEV}"
-        /bin/cat /mnt/boot/$(hostname)/crypttab | \
-          awk '{print "cryptsetup --key-file /mnt"$3" luksOpen "$2" "$1}'| \
-            while read READY_DEVICE ; do
-                echo "${READY_DEVICE}"
-                ${READY_DEVICE}
-            done
-    fi
-    umount /mnt/boot
-fi
-
-# try to use /boot if that didn't work
-if [ ! -b /dev/mapper/crypt_dev_sda2 ]; then
-    if [ -f /boot/${HOSTNAME}/crypttab ]; then
-        echo "using  /boot"
-        # start all crypto volumes in /boot/crypttab
-        /bin/cat /boot/${HOSTNAME}/crypttab | \
-          awk '{print "cryptsetup --key-file "$3" luksOpen "$2" "$1}'| \
-            while read READY_DEVICE ; do
-              ${READY_DEVICE}
-            done
-    fi
+  if [ -f /mnt/boot/${HOSTNAME}/crypttab ]; then
+    /bin/cat /mnt/boot/$(hostname)/crypttab | \
+      awk '{print "cryptsetup --key-file /mnt"$3" luksOpen "$2" "$1}'| \
+        while read READY_DEVICE ; do
+          echo "${READY_DEVICE}"
+          ${READY_DEVICE}
+        done
+  else
+    /bin/cat /mnt/boot/crypttab | \
+      awk '{print "cryptsetup --key-file /mnt"$3" luksOpen "$2" "$1}'| \
+        while read READY_DEVICE ; do
+          echo "${READY_DEVICE}"
+          ${READY_DEVICE}
+        done
+  fi
+  umount /mnt/boot
 fi
 
 if [ ! -b /dev/mapper/crypt_dev_sda2 ]; then
