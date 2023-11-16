@@ -4,10 +4,3 @@ cat<<EOF>/${TARGET}/root/.ssh/authorized_keys
 ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCvdc7cWdZ8zYn7i+SnbjsGd3ppsQQCit3DX6DEX3kFYadZZpocWS5i2sPTR4FYTg+2VOeEbUh/bYeInH602CmYfKU4c93GZC5/xp5aCtj7YzQ3ODDbxCDV7rHBtru5oxciy3ESEhk24lwlF729q+EtiRykpWhaAXi3bdoLDi/mmN3d5Uqy5vu2r5Lau3H02Q87BkMg1dhwi9YfvkwsrH9wa1jchrBWhZi8ZK24gso2GMPLEgmq6yvR8QtFMDuwf/XVdxhA+x831cdkCQ9buPcJKOHTvX+OS1iWGIKl8yzYf+duY+6nGGx8bXV9h3jWVsy/xkd/vE2SDmXRc4E4VYS4HSpKsJoyjc/ORo2FDnppD0y2ORQ5lanXD1yWwvz62crnHil4ap1psRaluArFc01Xg5h9ZcV2M3eRKnEAsaabcnHHbvO7PRRiVIgdQ0VzTAjFdzLE1JXUFwiJwk6WGhoJCWPVOrnQXxWYS7KNK5xeSgj7NK5lScErf0hvlvKZs4Eo8h6jFyB4M98VqQ6zWTg1XqIiws8B2TAjNvA1TocTe8Br1iG7LW/CBJvxU8YM81UXgauNmLQ8DsdZhKkCheLeoea7z+aDHhvEX8sHypDcSH+Rp3bU9zC+nOjfkdrklGEoSYV3AYuzOH0JxEX1Nw4P1K6C5IgK2ZnwsXFyOETXiw== jameswhite@bragi.local
 EOF
 chmod 640 ${TARGET}/root/.ssh/authorized_keys
-
-TARGET="/target"
-cat<<EOF> ${TARGET}/etc/apt/sources.list
-deb http://deb.debian.org/debian/ bookworm main non-free-firmware contrib
-deb-src http://deb.debian.org/debian/ bookworm main non-free-firmware contrib
-EOF
-chroot ${TARGET} apt-get update
