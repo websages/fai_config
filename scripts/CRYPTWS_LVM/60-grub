@@ -1,0 +1,9 @@
+#!/bin/bash
+export PATH="/usr/local/sbin:/usr/local/bin:/usr/lib/fai:/usr/sbin:/usr/bin:/sbin:/bin"
+error=0 ; trap "error=$((error|1))" ERR
+
+chroot ${TARGET} grub-mkconfig > /etc/grub.cfg
+chroot ${TARGET} grub-install /dev/sda
+
+exit $error
+

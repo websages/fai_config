@@ -1,0 +1,22 @@
+#! /bin/bash
+
+error=0 ; trap "error=$((error|1))" ERR
+
+# Create an initrd that will actually boot
+TARGETVERSION=$(/bin/ls $target/lib/modules)
+export LANGUAGE=C
+export LC_ALL=C
+
+FAI_CONFIG="/var/lib/fai/config"
+TARGET="/target"
+[ ! -d ${TARGET}/etc/initramfs-tools/scripts/local-top/ ] && mkdir -p /target/etc/initramfs-tools/scripts/local-top/
+cp ${FAI_CONFIG}/files/etc/initramfs-tools/modules ${TARGET}/etc/initramfs-tools/modules
+cp ${FAI_CONFIG}/files/etc/initramfs-tools/scripts/local-top/lvm_on_crypt ${TARGET}/etc/initramfs-tools/scripts/local-top/lvm_on_crypt
+cat<<EOF> ${target}/boot/crypttab
+crypt_dev_sda2  /dev/sda2       /boot/crypt_dev_sda2    luks,discard
+EOF
+cp /tmp/fai/crypt_dev_sda2 ${target}/boot
+cp ${target}/boot/crypttab ${target}/etc/crypttab # just to suppress the errors
+clear; chroot ${TARGET} update-initramfs -ck 6.1.0-13-amd64
+
+exit $error
