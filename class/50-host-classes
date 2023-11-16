@@ -7,7 +7,7 @@
 
 # use a list of classes for our demo machine
 case $HOSTNAME in
-    newvm06)
+    newvm06|containers)
         echo "DEBIAN BOOKWORM CRYPTWS_LVM GRUB_PC" ;;
     faiserver)
         echo "FAIBASE DEBIAN DEMO FAISERVER" ;;
