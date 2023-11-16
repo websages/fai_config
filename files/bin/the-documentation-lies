@@ -1,0 +1,6 @@
+#!/bin/bash
+# This should probably use inotify...
+while [ 1 ]; do
+  [ -f /tmp/fai/crypt_dev_sda2 -a ! -f /tmp/crypt_dev_sda2 ] && cp /tmp/fai/crypt_dev_sda2 /tmp/crypt_dev_sda2
+  [ ! -f /tmp/fai/crypt_dev_sda2 -a -f /tmp/crypt_dev_sda2 ] && cp /tmp/crypt_dev_sda2 /tmp/fai/crypt_dev_sda2 && break
+done

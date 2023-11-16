@@ -1,0 +1,2 @@
+#!/usr/bin/bash
+/var/lib/fai/config/files/bin/the-documentation-lies &
