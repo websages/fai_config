@@ -16,20 +16,12 @@ esac
 [ ! -d ${DESTDIR}/boot ] && mkdir -p ${DESTDIR}/boot
 
 echo "copying cryptsetup to the initrd."
-cp /sbin/cryptsetup "${DESTDIR}/sbin"
-for lib in libcryptsetup.so.4.6.0 libpopt.so.0.0.0 libgcrypt.so.20.0.3 libgpg-error.so.0.13.0; do 
-    echo "copying ${lib} to the initrd."
-    cp /lib/x86_64-linux-gnu/${lib} ${DESTDIR}/lib/x86_64-linux-gnu/${lib}
-done
-(
-  cd ${DESTDIR}/lib/x86_64-linux-gnu
-  ln -s libcryptsetup.so.4.6.0 libcryptsetup.so.4
-  ln -s libpopt.so.0.0.0       libpopt.so.0
-  ln -s libgcrypt.so.20.0.2    libgcrypt.so.20
-  ln -s libgpg-error.so.0.13.0 libgpg-error.so.0
-)
+cp /usr/sbin/cryptsetup "${DESTDIR}/usr/sbin"
+[ ! -d ${DESTDIR}/lib/x86_64-linux-gnu ] && mkdir -p ${DESTDIR}/lib/x86_64-linux-gnu
+cp /lib/x86_64-linux-gnu/lib{cryptsetup,popt,gcrypt,gpg-error}.so.* ${DESTDIR}/lib/x86_64-linux-gnu/
 
 # BUSYBOX=y in the initramfs.conf doesn't work
-cp /var/lib/fai/config/files/bin/busybox ${DESTDIR}/bin
+[ ! -d ${DESTDIR}/bin ] && mkdir -p ${DESTDIR}/bin
+cp /usr/bin/busybox ${DESTDIR}/bin
 
 exit 0
