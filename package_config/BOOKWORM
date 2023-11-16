@@ -5,6 +5,7 @@ file
 zstd
 less
 linuxlogo
+lvm2
 rsync
 openssh-client openssh-server
 time
