@@ -8,3 +8,9 @@ ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJ9PbkQ6wWSsU1s7kUtvM/W7nmpfqdQSMfhnXJwbToAq
 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIM1A+G8NAlb0ign8Npaok0M3Wxfbvc2MIuCY2v/U8ylY
 EOF
 chmod 640 ${TARGET}/root/.ssh/authorized_keys
+
+cat <<EOF > ${TARGET}/etc/network/interfaces.d/ens192
+auto ens192
+    allow-hotplug ens192
+    iface ens192 inet dhcp
+EOF
