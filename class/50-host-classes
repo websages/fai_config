@@ -18,5 +18,5 @@ case $HOSTNAME in
     gnomehost)
         echo "FAIBASE DEBIAN DEMO XORG GNOME";;
     *)
-        echo "FAIBASE DEBIAN DEMO" ;;
+        echo "DEBIAN BOOKWORM CRYPTWS_LVM" ;;
 esac
