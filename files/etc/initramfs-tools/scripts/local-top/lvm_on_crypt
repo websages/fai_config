@@ -61,7 +61,6 @@ if [ ! -z "${KEY_DEVICE}" ];then
           ${READY_DEVICE}
         done
   fi
-  umount /mnt/boot
 fi
 
 if [ ! -b /dev/mapper/crypt_dev_sda2 ]; then
@@ -70,6 +69,17 @@ if [ ! -b /dev/mapper/crypt_dev_sda2 ]; then
     /bin/sh
     # /bin/reboot
 fi
+
+# try our block id volumes...
+
+for disk in $(ls /dev/sd*1| grep -v sda); do
+  disk_blkid=$(blkid | grep ${disk} | sed -e 's/.*: UUID="//' -e 's/".*//';)
+  MAP_NAME=crypt_${disk_blkid//-/_}
+  KEY_FILE=/mnt/boot/${MAP_NAME}
+  cryptsetup --key-file=${KEY_FILE}  luksOpen ${disk} ${MAP_NAME}
+done
+
+umount /mnt/boot
 
 # start all volume groups that were just decrypted
 for VG in `lvm pvscan | grep "^ *PV"|awk '{print $4}'| sort -u`;do
