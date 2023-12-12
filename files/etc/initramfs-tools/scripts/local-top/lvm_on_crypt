@@ -39,9 +39,10 @@ fi
 if [ ! -z "${KEY_DEVICE}" ];then
   echo "using  ${KEY_DEVICE}"
 
-  modprobe ext2
+  modprobe ext4
   if [ ! -d /mnt/boot/ ]; then mkdir -p /mnt/boot/ ;fi
-  mount -t ext3 "${KEY_DEVICE}" /mnt/boot
+  mount -t ext4 "${KEY_DEVICE}" /mnt/boot
+
 
   export HOSTNAME=$(cat /proc/cmdline|sed -e's/.*hostname=//' -e's/ .*//')
   hostname "${HOSTNAME}"
