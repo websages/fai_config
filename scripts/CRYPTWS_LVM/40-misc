@@ -9,7 +9,7 @@ ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIM1A+G8NAlb0ign8Npaok0M3Wxfbvc2MIuCY2v/U8ylY
 EOF
 chmod 640 ${TARGET}/root/.ssh/authorized_keys
 
-INTERFACE=$(ip link show | grep altname | head -1 | awk '{print $NF}')
+INTERFACE=$(ip link show | grep altname | tail -1 | awk '{print $NF}')
 
 cat <<EOF > ${TARGET}/etc/network/interfaces.d/${INTERFACE}
 auto ${INTERFACE}
